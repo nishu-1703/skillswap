@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../config'
 
 export function SkillManager({ onSkillAdded }) {
   const { user } = useAuth()
@@ -18,7 +19,7 @@ export function SkillManager({ onSkillAdded }) {
   const fetchSkills = async () => {
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`http://localhost:4000/api/user/${user.id}/skills`, {
+      const res = await fetch(`${API_BASE_URL}/api/user/${user.id}/skills`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -36,7 +37,7 @@ export function SkillManager({ onSkillAdded }) {
     setError(null)
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`http://localhost:4000/api/user/${user.id}/skills`, {
+      const res = await fetch(`${API_BASE_URL}/api/user/${user.id}/skills`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +62,7 @@ export function SkillManager({ onSkillAdded }) {
   const handleDeleteSkill = async (skillId) => {
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`http://localhost:4000/api/user/${user.id}/skills/${skillId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/user/${user.id}/skills/${skillId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       })

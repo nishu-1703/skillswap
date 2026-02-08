@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import ReviewForm from './ReviewForm'
+import { API_BASE_URL } from '../config'
 
 const TEACH_EARN = 5
 const LEARN_COST = 5
@@ -22,7 +23,7 @@ export default function SessionManager() {
     setLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch('http://localhost:4000/api/sessions', {
+      const res = await fetch(`${API_BASE_URL}/api/sessions`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -37,7 +38,7 @@ export default function SessionManager() {
   const handleUpdateSession = async (sessionId, newStatus) => {
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`http://localhost:4000/api/sessions/${sessionId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/sessions/${sessionId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

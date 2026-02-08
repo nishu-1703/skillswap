@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react'
+import { API_BASE_URL } from '../config'
 
 export const AuthContext = createContext()
 
@@ -11,7 +12,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
-      fetch('http://localhost:4000/auth/verify', {
+      fetch(`${API_BASE_URL}/auth/verify`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(r => {
@@ -39,7 +40,7 @@ export function AuthProvider({ children }) {
   const signup = async (email, password, name) => {
     setError(null)
     try {
-      const res = await fetch('http://localhost:4000/auth/signup', {
+      const res = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name })
@@ -62,7 +63,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     setError(null)
     try {
-      const res = await fetch('http://localhost:4000/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

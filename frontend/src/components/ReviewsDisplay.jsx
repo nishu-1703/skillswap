@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { API_BASE_URL } from '../config'
 
 export default function ReviewsDisplay({ userId }) {
   const [reviews, setReviews] = useState(null)
@@ -10,7 +11,7 @@ export default function ReviewsDisplay({ userId }) {
 
   const fetchReviews = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/reviews/${userId}`)
+      const res = await fetch(`${API_BASE_URL}/api/reviews/${userId}`)
       const data = await res.json()
       setReviews(data)
     } catch (err) {

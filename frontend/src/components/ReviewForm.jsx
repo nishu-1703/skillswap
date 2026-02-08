@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../config'
 
 export default function ReviewForm({ sessionId, targetUserName, onSubmit }) {
   const { user } = useAuth()
@@ -16,7 +17,7 @@ export default function ReviewForm({ sessionId, targetUserName, onSubmit }) {
 
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch('http://localhost:4000/api/reviews', {
+      const res = await fetch(`${API_BASE_URL}/api/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

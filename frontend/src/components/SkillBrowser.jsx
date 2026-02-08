@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../config'
 
 export default function SkillBrowser() {
   const { user } = useAuth()
@@ -16,7 +17,7 @@ export default function SkillBrowser() {
   const fetchSkills = async () => {
     setLoading(true)
     try {
-      const res = await fetch('http://localhost:4000/api/skills')
+      const res = await fetch(`${API_BASE_URL}/api/skills`)
       const data = await res.json()
       // Filter out user's own skills
       const otherSkills = data.filter(s => s.teacherId !== user?.id)
@@ -33,7 +34,7 @@ export default function SkillBrowser() {
     setError(null)
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch('http://localhost:4000/api/sessions', {
+      const res = await fetch(`${API_BASE_URL}/api/sessions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { HashRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { API_BASE_URL } from './config'
 import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
 import LoginPage from './pages/LoginPage'
@@ -14,7 +15,7 @@ function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false)
 
   useEffect(() => {
-    fetch('http://localhost:4000/health')
+    fetch(`${API_BASE_URL}/health`)
       .then(r => r.json())
       .then(j => setBackendStatus(j.status))
       .catch(() => setBackendStatus('down'))
@@ -89,10 +90,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AuthProvider>
         <AppContent />
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }

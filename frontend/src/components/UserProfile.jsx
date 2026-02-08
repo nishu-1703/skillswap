@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import ReviewsDisplay from './ReviewsDisplay'
+import { API_BASE_URL } from '../config'
 
 export default function UserProfile({ userId }) {
   const [user, setUser] = useState(null)
@@ -11,7 +12,7 @@ export default function UserProfile({ userId }) {
 
   const fetchUser = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/user/${userId}`)
+      const res = await fetch(`${API_BASE_URL}/api/user/${userId}`)
       const data = await res.json()
       setUser(data)
     } catch (err) {
