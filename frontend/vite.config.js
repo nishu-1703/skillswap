@@ -5,6 +5,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   base: mode === 'production' ? '/skillswap/' : '/',
   server: {
-    port: 5173
+    port: 5173,
+    host: '0.0.0.0'
   }
 }))
