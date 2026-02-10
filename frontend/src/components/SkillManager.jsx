@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../config'
 
 export function SkillManager({ onSkillAdded }) {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [skills, setSkills] = useState([])
   const [newSkillName, setNewSkillName] = useState('')
   const [newSkillDesc, setNewSkillDesc] = useState('')
@@ -11,7 +11,9 @@ export function SkillManager({ onSkillAdded }) {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.skills) {
+      setSkills(user.skills)
+    } else if (user?.id) {
       fetchSkills()
     }
   }, [user])
@@ -48,7 +50,9 @@ export function SkillManager({ onSkillAdded }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
 
-      setSkills([...skills, data])
+      // refresh user to get latest skills list
+      const updated = await refreshUser()
+      setSkills(updated?.skills || [...skills, data])
       setNewSkillName('')
       setNewSkillDesc('')
       if (onSkillAdded) onSkillAdded()
@@ -68,7 +72,8 @@ export function SkillManager({ onSkillAdded }) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setSkills(skills.filter(s => s.id !== skillId))
+      const updated = await refreshUser()
+      setSkills(updated?.skills || skills.filter(s => s.id !== skillId))
       if (onSkillAdded) onSkillAdded()
     } catch (err) {
       setError(err.message)

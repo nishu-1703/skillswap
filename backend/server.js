@@ -20,6 +20,17 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-productio
 const TEACH_EARN = 5;
 const LEARN_COST = 5;
 
+// Simple in-memory chat store for prototype (persist only while server runs)
+const chatStore = {};
+
+// Online status tracker: { userId: { lastSeen: timestamp, isOnline: bool } }
+const onlineStatus = {};
+
+// Read status tracker: { conversationKey: { userId: lastReadTime } }
+const readStatus = {};
+
+const ONLINE_TIMEOUT = 30000; // 30 seconds - mark as offline if no ping
+
 /**
  * Middleware: Verify JWT token
  */
@@ -173,6 +184,146 @@ app.post('/api/sessions', verifyToken, async (req, res) => {
 app.get('/api/sessions', verifyToken, async (req, res) => {
   const userSessions = await getUserSessions(req.userId);
   res.json(userSessions);
+});
+
+// Chat endpoints (prototype) - messages are stored in-memory for each session
+app.get('/api/chat/:sessionId', verifyToken, async (req, res) => {
+  const session = await getSession(req.params.sessionId);
+  if (!session) return res.status(404).json({ error: 'Session not found' });
+  if (req.userId !== session.learnerId && req.userId !== session.teacherId) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  const msgs = chatStore[req.params.sessionId] || [];
+  res.json(msgs);
+});
+
+app.post('/api/chat/:sessionId', verifyToken, async (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Message text required' });
+  const session = await getSession(req.params.sessionId);
+  if (!session) return res.status(404).json({ error: 'Session not found' });
+  if (req.userId !== session.learnerId && req.userId !== session.teacherId) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  const message = { id: 'msg_' + Date.now(), sessionId: req.params.sessionId, senderId: req.userId, text, createdAt: new Date().toISOString() };
+  chatStore[req.params.sessionId] = chatStore[req.params.sessionId] || [];
+  chatStore[req.params.sessionId].push(message);
+  res.status(201).json(message);
+});
+
+// Online status endpoints
+app.post('/api/online/ping', verifyToken, async (req, res) => {
+  const now = Date.now();
+  onlineStatus[req.userId] = { lastSeen: now, isOnline: true };
+  res.json({ status: 'pong' });
+});
+
+app.get('/api/online/users', verifyToken, async (req, res) => {
+  const now = Date.now();
+  const users = {};
+  for (const userId in onlineStatus) {
+    const status = onlineStatus[userId];
+    users[userId] = {
+      lastSeen: status.lastSeen,
+      isOnline: (now - status.lastSeen) < ONLINE_TIMEOUT
+    };
+  }
+  res.json(users);
+});
+
+app.get('/api/conversations', verifyToken, async (req, res) => {
+  // Get all people current user has sessions with (for conversations)
+  const userSessions = await getUserSessions(req.userId);
+  const conversationMap = {};
+  
+  userSessions.forEach(s => {
+    const otherUserId = s.learnerId === req.userId ? s.teacherId : s.learnerId;
+    const otherUserName = s.learnerId === req.userId ? s.teacherName : s.learnerName;
+    if (!conversationMap[otherUserId]) {
+      conversationMap[otherUserId] = {
+        userId: otherUserId,
+        name: otherUserName,
+        lastMessage: null,
+        unreadCount: 0
+      };
+    }
+  });
+  
+  // Get last message for each conversation
+  for (const userId in conversationMap) {
+    const sessionIds = userSessions
+      .filter(s => (s.learnerId === req.userId && s.teacherId === userId) || (s.teacherId === req.userId && s.learnerId === userId))
+      .map(s => s.id);
+    
+    let lastMsg = null;
+    for (const sessionId of sessionIds) {
+      const msgs = chatStore[sessionId] || [];
+      if (msgs.length > 0) {
+        const msg = msgs[msgs.length - 1];
+        if (!lastMsg || new Date(msg.createdAt) > new Date(lastMsg.createdAt)) {
+          lastMsg = msg;
+        }
+      }
+    }
+    conversationMap[userId].lastMessage = lastMsg;
+  }
+  
+  const conversations = Object.values(conversationMap).sort((a, b) => {
+    const aTime = a.lastMessage ? new Date(a.lastMessage.createdAt) : new Date(0);
+    const bTime = b.lastMessage ? new Date(b.lastMessage.createdAt) : new Date(0);
+    return bTime - aTime;
+  });
+  
+  res.json(conversations);
+});
+
+app.get('/api/direct-chat/:otherUserId', verifyToken, async (req, res) => {
+  // Get direct messages with another user (across all sessions)
+  const otherUserId = req.params.otherUserId;
+  const userSessions = await getUserSessions(req.userId);
+  const relevantSessions = userSessions.filter(
+    s => (s.learnerId === req.userId && s.teacherId === otherUserId) || 
+         (s.teacherId === req.userId && s.learnerId === otherUserId)
+  );
+  
+  const allMessages = [];
+  relevantSessions.forEach(s => {
+    const msgs = chatStore[s.id] || [];
+    allMessages.push(...msgs);
+  });
+  
+  const sorted = allMessages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  res.json(sorted);
+});
+
+app.post('/api/direct-chat/:otherUserId', verifyToken, async (req, res) => {
+  // Send a direct message (store under a virtual conversation key)
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Message text required' });
+  
+  const otherUserId = req.params.otherUserId;
+  const conversationKey = [req.userId, otherUserId].sort().join('_');
+  
+  const message = {
+    id: 'msg_' + Date.now(),
+    conversationKey,
+    senderId: req.userId,
+    receiverId: otherUserId,
+    text,
+    createdAt: new Date().toISOString()
+  };
+  
+  chatStore[conversationKey] = chatStore[conversationKey] || [];
+  chatStore[conversationKey].push(message);
+  res.status(201).json(message);
+});
+
+app.post('/api/conversations/:otherUserId/mark-read', verifyToken, async (req, res) => {
+  const otherUserId = req.params.otherUserId;
+  const conversationKey = [req.userId, otherUserId].sort().join('_');
+  readStatus[conversationKey] = readStatus[conversationKey] || {};
+  readStatus[conversationKey][req.userId] = Date.now();
+  res.json({ status: 'marked' });
 });
 
 app.put('/api/sessions/:id', verifyToken, async (req, res) => {

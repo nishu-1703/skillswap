@@ -1,0 +1,387 @@
+/**
+ * SkillSwap Icon & Semantic Reference Guide
+ * Consistent icons and their meanings for intuitive navigation
+ */
+
+:root {
+  /* ICON MEANINGS (Emoji + Unicode) */
+  /* Navigation & Common Actions */
+  --icon-home: '🏠';           /* Home, Dashboard */
+  --icon-search: '🔍';         /* Search, Find */
+  --icon-menu: '☰';           /* Menu, Navigation */
+  --icon-close: '✕';          /* Close, Dismiss, Cancel */
+  --icon-back: '←';           /* Back, Previous */
+  
+  /* User & Profile */
+  --icon-user: '👤';          /* Profile, Account */
+  --icon-users: '👥';         /* Team, Collaboration */
+  --icon-logout: '🚪';        /* Logout, Exit */
+  
+  /* Communication */
+  --icon-message: '💬';       /* Messages, Chat */
+  --icon-notification: '🔔';  /* Notifications, Alerts */
+  --icon-send: '📤';          /* Send, Submit */
+  
+  /* Skills & Learning */
+  --icon-skill: '🎓';         /* Skills, Education */
+  --icon-teach: '📚';         /* Teaching, Learning */
+  --icon-browse: '🔍';        /* Browse, Discover */
+  --icon-star: '⭐';          /* Rating, Favorites */
+  
+  /* Session Management */
+  --icon-session: '📅';       /* Sessions, Calendar */
+  --icon-accept: '✓';         /* Accept, Approve, Complete */
+  --icon-reject: '✗';         /* Reject, Decline, Cancel */
+  
+  /* Transactions & Money */
+  --icon-credits: '💰';       /* Credits, Money, Payment */
+  --icon-earn: '📈';          /* Earn, Growth, Income */
+  --icon-spend: '📉';         /* Spend, Cost, Expense */
+  
+  /* Status Indicators */
+  --icon-online: '🟢';        /* Online, Active, Available */
+  --icon-offline: '⚪';       /* Offline, Inactive, Unavailable */
+  --icon-pending: '⏳';       /* Pending, Waiting, Processing */
+  --icon-success: '✓✓';       /* Delivered, Read, Success */
+  
+  /* Common Actions */
+  --icon-add: '+';            /* Add, Create, New */
+  --icon-edit: '✏️';          /* Edit, Modify, Change */
+  --icon-delete: '🗑️';        /* Delete, Remove, Trash */
+  --icon-settings: '⚙️';      /* Settings, Preferences, Options */
+  --icon-help: '?';           /* Help, Info, Question */
+  --icon-info: 'i';           /* Information, Details */
+}
+
+/* ============================================================================
+   ICON USAGE PATTERNS IN SkillSwap
+   ============================================================================ */
+
+/**
+ * MAIN NAVIGATION TAB ICONS
+ * 
+ * 🔍 Browse Skills      - Search/discover skills in marketplace
+ * 📚 My Teaching        - Skills you teach, manage your offerings
+ * 📅 My Sessions        - View connections, interactions, requests
+ * 💬 Messages           - Real-time chat with other users
+ * 👤 My Profile         - View/edit your profile, reviews, stats
+ */
+
+/* SKILL STATUS INDICATORS */
+.status-icon-pending {
+  /* ⏳ Pending - waiting for response */
+  color: #f59e0b;
+}
+
+.status-icon-accepted {
+  /* ✓ Accepted - active, ready to proceed */
+  color: #10b981;
+  font-weight: bold;
+}
+
+.status-icon-completed {
+  /* ✓✓ Completed - finished/delivered */
+  color: #3b82f6;
+}
+
+.status-icon-rejected {
+  /* ✗ Rejected - declined/cancelled */
+  color: #ef4444;
+}
+
+/* ONLINE STATUS */
+.online-indicator::before {
+  content: '🟢';
+  margin-right: 4px;
+  font-size: 12px;
+}
+
+.offline-indicator::before {
+  content: '⚪';
+  margin-right: 4px;
+  font-size: 12px;
+}
+
+/* ACTION BUTTONS */
+.btn-accept::before {
+  content: '✓ ';
+}
+
+.btn-reject::before {
+  content: '✗ ';
+}
+
+.btn-delete::before {
+  content: '🗑️ ';
+}
+
+.btn-edit::before {
+  content: '✏️ ';
+}
+
+.btn-add::before {
+  content: '+ ';
+}
+
+/* MESSAGE DELIVERY STATUS */
+.msg-status-sent {
+  /* Single checkmark = sent */
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.msg-status-delivered {
+  /* Double checkmark = delivered */
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.msg-status-read {
+  /* Blue double checkmark = read */
+  display: inline-block;
+  margin-left: 4px;
+  color: #0084ff;
+}
+
+/* ============================================================================
+   ICON ACCESSIBILITY
+   ============================================================================ */
+
+/**
+ * Icon-Only Button Pattern
+ * Always pair with aria-label for screen readers
+ */
+
+.btn-icon-only[aria-label] {
+  /* Screen readers will announce the aria-label */
+  /* Visual users see the icon */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Example */
+
+/**
+ * Icon + Text Button Pattern (PREFERRED)
+ * Icon enhances understanding, text provides clarity
+ */
+
+.btn-icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Example: 📚 View All Skills */
+
+/**
+ * Semantic Icon Usage
+ * Icons convoy meaning + status at a glance
+ */
+
+/* Badge with icon */
+.skill-badge::before {
+  content: '🎓';
+  margin-right: 4px;
+}
+
+/* Message type indicator */
+.message-text-indicator::before {
+  content: '💬';
+  margin-right: 6px;
+}
+
+/* Credit transaction */
+.credit-earn::before {
+  content: '📈 ';
+  color: #10b981;
+}
+
+.credit-spend::before {
+  content: '📉 ';
+  color: #ef4444;
+}
+
+/* ============================================================================
+   ICON DESIGN PRINCIPLES
+   ============================================================================ */
+
+/**
+ * 1. CONSISTENCY
+ *    - Same icon always means same thing
+ *    - Example: 💬 always = messaging, across entire app
+ *
+ * 2. CLARITY
+ *    - Icon meaning should be obvious
+ *    - If unclear, pair with text label
+ *    - Never rely on icon alone unless obvious (e.g., ✕ for close)
+ *
+ * 3. UNIVERSALITY
+ *    - Use globally recognized symbols
+ *    - Avoid culturally specific or obscure icons
+ *    - Test with actual users
+ *
+ * 4. ACCESSIBILITY
+ *    - Icon-only buttons need aria-label
+ *    - Include alt text for icon images
+ *    - Ensure sufficient color contrast
+ *
+ * 5. MINIMALISM
+ *    - Use icons purposefully, not decoratively (usually)
+ *    - Too many icons = visual clutter
+ *    - Balance icons with white space
+ */
+
+/* ============================================================================
+   EMOJI USAGE NOTES
+   ============================================================================ */
+
+/**
+ * Some emojis render differently across platforms/OS:
+ * - Windows: Different style than macOS
+ * - Mobile: May render larger/smaller
+ * - Old browsers: May not support all emojis
+ *
+ * For critical UI icons, consider:
+ * 1. Using Unicode symbols (↑ ↓ → ←)
+ * 2. Using custom SVG icons
+ * 3. Using web fonts (Font Awesome, Material Icons)
+ * 4. Testing on target devices
+ */
+
+/* ============================================================================
+   COMMON PATTERNS IN SKILLSWAP
+   ============================================================================ */
+
+/**
+ * SKILL CARD
+ * ┌─────────────────────────────┐
+ * │ 🎓 Skill Name      [BADGE]  │
+ * │ Description here for skill  │
+ * │ Taught by John Smith (rating)
+ * │                             │
+ * │              [REQUEST] [▼]  │
+ * └─────────────────────────────┘
+ */
+
+/**
+ * SESSION REQUEST
+ * ┌──────────────────────────┐
+ * │ 📅 Guitar Lessons        │
+ * │ John wants to learn      │
+ * │ from you                 │
+ * │        [✓ Accept]        │
+ * │        [✗ Decline]       │
+ * └──────────────────────────┘
+ */
+
+/**
+ * MESSAGE BUBBLE
+ * You:     "Hi, want to learn?"
+ * Them:    "Sure! When's good?" ✓✓
+ *          └─ Double checkmark = read
+ */
+
+/**
+ * NAVIGATION TABS
+ * 🔍 Browse | 📚 Teach | 📅 Sessions | 💬 Messages | 👤 Profile
+ */
+
+/**
+ * CREDIT DISPLAY
+ * Earned: 📈 +5 (green)
+ * Spent:  📉 -5 (red)
+ * Total:  💰 95
+ */
+
+/* ============================================================================
+   WCAG COMPLIANCE FOR ICONS
+   ============================================================================ */
+
+/**
+ * Icon Color Contrast
+ * - Icon color must have 3:1 contrast ratio with background
+ * - Example: Blue icon (#0084ff) on white = 3.5:1 ✓
+ */
+
+.icon-bad {
+  /* Icon with insufficient contrast */
+  color: #ccc;  /* ❌ Only 2.2:1 on white */
+}
+
+/**
+ * Icon Size
+ * - Minimum 16x16px for standalone icons
+ * - 20x20px or larger for better touch targets
+ * - 24px-32px for prominent status icons
+ */
+
+.icon-small {
+  font-size: 16px;  /* 16x16 minimum */
+}
+
+.icon-medium {
+  font-size: 20px;  /* 20x20 standard */
+}
+
+.icon-large {
+  font-size: 24px;  /* 24x24 prominent */
+}
+
+.icon-xl {
+  font-size: 32px;  /* Large, decorative */
+}
+
+/**
+ * Touch Target Size
+ * - Minimum 44x44px for touch interfaces
+ * - Can be achieved with padding around smaller icon
+ */
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  padding: 8px;  /* (44 - 28) / 2 = 8px padding for 28px icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================================================
+   CUSTOM ICON SVG PATTERN
+   ============================================================================ */
+
+/**
+ * If using SVG instead of emoji:
+ * 
+ * <button aria-label="Send message" className="btn-icon-send">
+ *   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+ *     <path d="... SVG path data ..." />
+ *   </svg>
+ * </button>
+ *
+ * Advantages:
+ * ✓ Consistent across all platforms
+ * ✓ Full control over appearance
+ * ✓ Can animate with CSS
+ * ✓ Scalable without quality loss
+ */
+
+/* ============================================================================
+   TESTING ICON ACCESSIBILITY
+   ============================================================================ */
+
+/**
+ * Checklist:
+ * ☐ Icon-only buttons have aria-label
+ * ☐ Icon + text is preferred (icon is enhancement)
+ * ☐ Icon meaning is universal/obvious
+ * ☐ Icon has sufficient color contrast (3:1 minimum)
+ * ☐ Icon is 16x16px minimum, 24x24px preferred
+ * ☐ Touch targets 44x44px minimum (with padding if needed)
+ * ☐ Works in high contrast mode
+ * ☐ Tested with screen reader
+ * ☐ Renders correctly in grayscale
+ * ☐ Renders correctly on mobile
+ */

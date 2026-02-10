@@ -37,6 +37,29 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  // Refresh current user (fetch latest profile + skills)
+  const refreshUser = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) return null
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/verify`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (!res.ok) {
+        localStorage.removeItem('token')
+        setUser(null)
+        return null
+      }
+      const data = await res.json()
+      setUser(data)
+      return data
+    } catch (err) {
+      localStorage.removeItem('token')
+      setUser(null)
+      return null
+    }
+  }
+
   const signup = async (email, password, name) => {
     setError(null)
     try {
@@ -52,7 +75,8 @@ export function AuthProvider({ children }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Signup failed')
       localStorage.setItem('token', data.token)
-      setUser({ id: data.id, email: data.email, name: data.name, credits: data.credits })
+      // fetch full user (including skills) and set
+      await refreshUser()
       return data
     } catch (err) {
       setError(err.message)
@@ -75,7 +99,8 @@ export function AuthProvider({ children }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Login failed')
       localStorage.setItem('token', data.token)
-      setUser({ id: data.id, email: data.email, name: data.name, credits: data.credits })
+      // fetch full user (including skills) and set
+      await refreshUser()
       return data
     } catch (err) {
       setError(err.message)
@@ -90,7 +115,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, signup, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, error, signup, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

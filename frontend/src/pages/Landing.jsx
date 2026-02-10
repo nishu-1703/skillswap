@@ -7,73 +7,77 @@ export default function Landing() {
   const { user } = useAuth()
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display: 'flex', flexDirection: 'column' }}>
+    <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Hero Section */}
-      <section style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', textAlign: 'center', color: 'white' }}>
-        <div>
-          <div style={{ fontSize: '56px', fontWeight: '800', marginBottom: '20px', lineHeight: '1.2' }}>
+      <section 
+        style={{ 
+          flex: 1, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          padding: 'var(--spacing-5xl) var(--spacing-lg)', 
+          textAlign: 'center', 
+          color: 'white',
+          background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)'
+        }}
+        role="region"
+        aria-label="Hero section"
+      >
+        <div style={{ maxWidth: '700px' }}>
+          <h1 style={{ 
+            fontSize: 'var(--font-size-7xl)', 
+            fontWeight: 'var(--font-weight-bold)',
+            marginBottom: 'var(--spacing-lg)', 
+            lineHeight: 'var(--line-height-tight)',
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          }}>
             Teach → Earn → Learn
-          </div>
-          <p style={{ fontSize: '20px', marginBottom: '30px', opacity: '0.95', maxWidth: '600px', margin: '0 auto 30px' }}>
+          </h1>
+          
+          <p style={{ 
+            fontSize: 'var(--font-size-xl)', 
+            marginBottom: 'var(--spacing-2xl)',
+            opacity: '0.98',
+            lineHeight: 'var(--line-height-relaxed)',
+            textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+          }}>
             Exchange skills instead of money. Teach what you know, earn credits, and learn from others in our peer-to-peer community.
           </p>
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+
+          {/* Call-to-Action Buttons */}
+          <div style={{ 
+            display: 'flex', 
+            gap: 'var(--spacing-lg)', 
+            justifyContent: 'center', 
+            flexWrap: 'wrap',
+            marginBottom: 'var(--spacing-xl)'
+          }}>
             {user ? (
               <button 
-                onClick={() => navigate('/dashboard')}
-                style={{ 
-                  padding: '14px 40px', 
-                  fontSize: '16px', 
-                  fontWeight: '600',
-                  background: 'white', 
-                  color: '#667eea', 
-                  border: 'none', 
-                  borderRadius: '8px', 
-                  cursor: 'pointer',
-                  boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                  transition: 'transform 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                onClick={() => navigate('#/dashboard')}
+                className="btn btn-primary btn-lg"
+                aria-label="Go to your dashboard"
               >
                 Go to Dashboard
               </button>
             ) : (
               <>
                 <button 
-                  onClick={() => navigate('/signup')}
-                  style={{ 
-                    padding: '14px 40px', 
-                    fontSize: '16px', 
-                    fontWeight: '600',
-                    background: 'white', 
-                    color: '#667eea', 
-                    border: 'none', 
-                    borderRadius: '8px', 
-                    cursor: 'pointer',
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                    transition: 'transform 0.2s'
-                  }}
-                  onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                  onClick={() => navigate('#/signup')}
+                  className="btn btn-primary btn-lg"
+                  aria-label="Create a new SkillSwap account"
                 >
                   Get Started
                 </button>
                 <button 
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('#/login')}
+                  className="btn btn-secondary btn-lg"
                   style={{ 
-                    padding: '14px 40px', 
-                    fontSize: '16px', 
-                    fontWeight: '600',
-                    background: 'rgba(255,255,255,0.2)', 
-                    color: 'white', 
-                    border: '2px solid white', 
-                    borderRadius: '8px', 
-                    cursor: 'pointer',
-                    transition: 'background 0.2s'
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    color: 'white',
+                    borderColor: 'white'
                   }}
-                  onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.3)'}
-                  onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+                  aria-label="Sign in to your existing account"
                 >
                   Sign In
                 </button>
@@ -84,58 +88,164 @@ export default function Landing() {
       </section>
 
       {/* Features Section */}
-      <section style={{ background: 'white', padding: '80px 20px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2 style={{ textAlign: 'center', fontSize: '32px', fontWeight: '700', marginBottom: '60px', color: '#111' }}>How SkillSwap Works</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px' }}>
-            {/* Feature 1 */}
-            <div style={{ padding: '40px', background: 'linear-gradient(135deg, #667eea15, #764ba215)', borderRadius: '12px', border: '1px solid #667eea30', textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎓</div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px', color: '#111' }}>Teach Your Skills</h3>
-              <p style={{ color: '#666', lineHeight: '1.6' }}>Share your expertise with others. You set your own schedule and pick what to teach.</p>
+      <section 
+        style={{ 
+          background: 'white', 
+          padding: 'var(--spacing-5xl) var(--spacing-lg)'
+        }}
+        role="region"
+        aria-label="How SkillSwap works"
+      >
+        <div className="container">
+          <h2 style={{ 
+            textAlign: 'center', 
+            marginBottom: 'var(--spacing-5xl)',
+            color: 'var(--color-text)'
+          }}>How SkillSwap Works</h2>
+
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            gap: 'var(--spacing-2xl)'
+          }}>
+            <>
+              {/* Feature 1: Teaching */}
+              <article className="card">
+                <div style={{ fontSize: '48px', marginBottom: 'var(--spacing-lg)', textAlign: 'center' }} aria-hidden="true">
+                  🎓
+                </div>
+                <h3 style={{ textAlign: 'center', color: 'var(--color-text)', marginBottom: 'var(--spacing-md)' }}>
+                  Teach Your Skills
+                </h3>
+                <p style={{ color: 'var(--color-text-light)', lineHeight: 'var(--line-height-relaxed)', margin: 0 }}>
+                  Share your expertise with others. You set your own schedule and pick what to teach.
+                </p>
+              </article>
+
+              {/* Feature 2: Earning */}
+              <article className="card">
+                <div style={{ fontSize: '48px', marginBottom: 'var(--spacing-lg)', textAlign: 'center' }} aria-hidden="true">
+                  💰
+                </div>
+                <h3 style={{ textAlign: 'center', color: 'var(--color-text)', marginBottom: 'var(--spacing-md)' }}>
+                  Earn Credits
+                </h3>
+                <p style={{ color: 'var(--color-text-light)', lineHeight: 'var(--line-height-relaxed)', margin: 0 }}>
+                  Get rewarded for sharing knowledge. Every completed session earns you credits to spend on learning.
+                </p>
+              </article>
+
+              {/* Feature 3: Learning */}
+              <article className="card">
+                <div style={{ fontSize: '48px', marginBottom: 'var(--spacing-lg)', textAlign: 'center' }} aria-hidden="true">
+                  🚀
+                </div>
+                <h3 style={{ textAlign: 'center', color: 'var(--color-text)', marginBottom: 'var(--spacing-md)' }}>
+                  Learn New Skills
+                </h3>
+                <p style={{ color: 'var(--color-text-light)', lineHeight: 'var(--line-height-relaxed)', margin: 0 }}>
+                  Access a diverse community of experts ready to teach. Browse hundreds of skills and start learning today.
+                </p>
+              </article>
+            </>
+          </div>
+        </div>
+      </section>
+
+      {/* Why SkillSwap Section */}
+      <section 
+        style={{ 
+          background: 'var(--color-bg)', 
+          padding: 'var(--spacing-5xl) var(--spacing-lg)'
+        }}
+        role="region"
+        aria-label="Why join SkillSwap"
+      >
+        <div className="container">
+          <h2 style={{ 
+            textAlign: 'center', 
+            marginBottom: 'var(--spacing-5xl)',
+            color: 'var(--color-text)'
+          }}>Why Join SkillSwap?</h2>
+
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+            gap: 'var(--spacing-2xl)'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '40px', marginBottom: 'var(--spacing-md)' }} aria-hidden="true">
+                ✓
+              </div>
+              <h3 style={{ color: 'var(--color-text)', marginBottom: 'var(--spacing-md)', fontSize: 'var(--font-size-lg)' }}>
+                No Payment Required
+              </h3>
+              <p style={{ color: 'var(--color-text-light)' }}>
+                Exchange skills using credits instead of money. Fair for everyone.
+              </p>
             </div>
-            {/* Feature 2 */}
-            <div style={{ padding: '40px', background: 'linear-gradient(135deg, #667eea15, #764ba215)', borderRadius: '12px', border: '1px solid #667eea30', textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>💰</div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px', color: '#111' }}>Earn Credits</h3>
-              <p style={{ color: '#666', lineHeight: '1.6' }}>Every completed teaching session earns you credits you can use to learn new skills.</p>
+
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '40px', marginBottom: 'var(--spacing-md)' }} aria-hidden="true">
+                ✓
+              </div>
+              <h3 style={{ color: 'var(--color-text)', marginBottom: 'var(--spacing-md)', fontSize: 'var(--font-size-lg)' }}>
+                Flexible Scheduling
+              </h3>
+              <p style={{ color: 'var(--color-text-light)' }}>
+                Teach and learn on your own time. No rigid classes or commitments.
+              </p>
             </div>
-            {/* Feature 3 */}
-            <div style={{ padding: '40px', background: 'linear-gradient(135deg, #667eea15, #764ba215)', borderRadius: '12px', border: '1px solid #667eea30', textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚀</div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px', color: '#111' }}>Learn Anything</h3>
-              <p style={{ color: '#666', lineHeight: '1.6' }}>Spend your credits to book sessions and learn from talented instructors in your community.</p>
+
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '40px', marginBottom: 'var(--spacing-md)' }} aria-hidden="true">
+                ✓
+              </div>
+              <h3 style={{ color: 'var(--color-text)', marginBottom: 'var(--spacing-md)', fontSize: 'var(--font-size-lg)' }}>
+                Community Driven
+              </h3>
+              <p style={{ color: 'var(--color-text-light)' }}>
+                Join thousands of learners and teachers building together.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '60px 20px', textAlign: 'center', color: 'white' }}>
-        <h2 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '20px' }}>Ready to Start Learning?</h2>
-        <p style={{ fontSize: '18px', marginBottom: '30px', opacity: '0.95', maxWidth: '500px', margin: '0 auto 30px' }}>
-          Join thousands of learners exchanging skills and growing together, credit by credit.
-        </p>
-        {!user && <button 
-          onClick={() => navigate('/signup')}
+      {!user && (
+        <section 
           style={{ 
-            padding: '14px 40px', 
-            fontSize: '16px', 
-            fontWeight: '600',
-            background: 'white', 
-            color: '#667eea', 
-            border: 'none', 
-            borderRadius: '8px', 
-            cursor: 'pointer',
-            boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-            transition: 'transform 0.2s'
+            background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
+            padding: 'var(--spacing-5xl) var(--spacing-lg)',
+            color: 'white',
+            textAlign: 'center'
           }}
-          onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-          onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+          role="region"
+          aria-label="Call to action"
         >
-          Create Free Account
-        </button>}
-      </section>
-    </div>
+          <div className="container">
+            <h2 style={{ color: 'white', marginBottom: 'var(--spacing-xl)' }}>
+              Ready to Start Learning?
+            </h2>
+            <p style={{ fontSize: 'var(--font-size-lg)', marginBottom: 'var(--spacing-2xl)', maxWidth: '500px', margin: '0 auto var(--spacing-2xl)' }}>
+              Join SkillSwap today and start exchanging knowledge with our community.
+            </p>
+            <button 
+              onClick={() => navigate('#/signup')}
+              className="btn"
+              style={{ 
+                background: 'white',
+                color: '#4f46e5',
+                fontWeight: 'var(--font-weight-bold)'
+              }}
+              aria-label="Create your account now"
+            >
+              Create Account Free
+            </button>
+          </div>
+        </section>
+      )}
+    </main>
   )
 }
