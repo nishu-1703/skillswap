@@ -1,14 +1,40 @@
 const { Pool } = require('pg');
 
+const connectionString = process.env.DATABASE_URL;
+
+// Respect explicit PGSSLMODE and only default to SSL in production.
+const pgSslMode = (process.env.PGSSLMODE || '').toLowerCase();
+const sslDisabledModes = new Set(['disable', 'false', '0', 'no']);
+const sslEnabledModes = new Set(['require', 'verify-ca', 'verify-full', 'true', '1', 'yes']);
+
+let sslModeFromUrl = null;
+if (connectionString) {
+  try {
+    const parsed = new URL(connectionString);
+    sslModeFromUrl = parsed.searchParams.get('sslmode')?.toLowerCase() || null;
+  } catch {
+    // Ignore URL parse failures and fall back to env-based detection.
+  }
+}
+
+const sslExplicitlyDisabled = sslDisabledModes.has(pgSslMode) || sslModeFromUrl === 'disable';
+const sslExplicitlyEnabled = sslEnabledModes.has(pgSslMode) ||
+  (sslModeFromUrl !== null && sslModeFromUrl !== 'disable');
+const useSsl = sslExplicitlyEnabled || (!sslExplicitlyDisabled && process.env.NODE_ENV === 'production');
+
 // PostgreSQL connection pool
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  connectionString,
+  ssl: useSsl ? { rejectUnauthorized: false } : false
 });
 
 // Initialize database schema
 async function initializeDB() {
   try {
+    if (!connectionString) {
+      throw new Error('DATABASE_URL is not set');
+    }
+
     // Create tables
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
