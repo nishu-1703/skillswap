@@ -58,44 +58,59 @@ const verifyToken = (req, res, next) => {
  * Auth Routes
  */
 app.post('/auth/signup', async (req, res) => {
-  const { email, password, name } = req.body;
-  if (!email || !password || !name) {
-    return res.status(400).json({ error: 'Email, password, and name required' });
+  try {
+    const { email, password, name } = req.body;
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'Email, password, and name required' });
+    }
+
+    // Check if email exists
+    const existing = await getUserByEmail(email);
+    if (existing) return res.status(409).json({ error: 'Email already registered' });
+
+    const id = 'user_' + Date.now();
+    await createUser(id, email, password, name);
+    
+    const user = await getUser(id);
+    const token = jwt.sign({ id, email }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ id, email, name, credits: user.credits, token });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ error: 'Signup failed: ' + error.message });
   }
-
-  // Check if email exists
-  const existing = await getUserByEmail(email);
-  if (existing) return res.status(409).json({ error: 'Email already registered' });
-
-  const id = 'user_' + Date.now();
-  await createUser(id, email, password, name);
-  
-  const user = await getUser(id);
-  const token = jwt.sign({ id, email }, JWT_SECRET, { expiresIn: '7d' });
-  res.status(201).json({ id, email, name, credits: user.credits, token });
 });
 
 app.post('/auth/login', async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password required' });
-  }
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
 
-  const user = await getUserByEmail(email);
-  if (!user || user.password !== password) {
-    return res.status(401).json({ error: 'Invalid email or password' });
-  }
+    const user = await getUserByEmail(email);
+    if (!user || user.password !== password) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
 
-  const token = jwt.sign({ id: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
-  res.json({ id: user.id, email: user.email, name: user.name, credits: user.credits, token });
+    const token = jwt.sign({ id: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ id: user.id, email: user.email, name: user.name, credits: user.credits, token });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed: ' + error.message });
+  }
 });
 
 app.get('/auth/verify', verifyToken, async (req, res) => {
-  const user = await getUser(req.userId);
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  
-  const skills = await getUserSkills(req.userId);
-  res.json({ id: user.id, email: user.email, name: user.name, credits: user.credits, skills });
+  try {
+    const user = await getUser(req.userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    const skills = await getUserSkills(req.userId);
+    res.json({ id: user.id, email: user.email, name: user.name, credits: user.credits, skills });
+  } catch (error) {
+    console.error('Verify error:', error);
+    res.status(500).json({ error: 'Verification failed: ' + error.message });
+  }
 });
 
 /**
