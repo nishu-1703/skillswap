@@ -435,11 +435,6 @@ app.get("/", (req, res) => {
   res.send("SkillSwap backend is live 🚀");
 });
 
-// Health check route
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
-});
-
 // Async initialization and startup
 (async () => {
   try {
