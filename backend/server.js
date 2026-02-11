@@ -10,10 +10,15 @@ const {
 } = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+// Enable CORS
+app.use(cors({ origin: "*" }));
+app.use(express.json());
 
-app.use(cors());
-app.use(bodyParser.json());
+// Dynamic PORT binding
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 // Config
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
@@ -426,6 +431,16 @@ app.get('/api/reviews/:userId', async (req, res) => {
     totalReviews: userReviews.length,
     averageRating: avgRating
   });
+});
+
+// Root route
+app.get("/", (req, res) => {
+  res.send("SkillSwap backend is live 🚀");
+});
+
+// Health check route
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
 // Async initialization and startup
