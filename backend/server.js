@@ -38,9 +38,6 @@ const readStatus = {};
 
 const ONLINE_TIMEOUT = 30000; // 30 seconds - mark as offline if no ping
 
-// Handle preflight requests
-app.options('*', cors());
-
 /**
  * Middleware: Verify JWT token
  */
