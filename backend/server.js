@@ -10,8 +10,13 @@ const {
 } = require('./db');
 
 const app = express();
-// Enable CORS
-app.use(cors({ origin: "*" }));
+// Enable CORS with proper headers for GitHub Pages
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false
+}));
 app.use(express.json());
 
 // Dynamic PORT binding
@@ -32,6 +37,9 @@ const onlineStatus = {};
 const readStatus = {};
 
 const ONLINE_TIMEOUT = 30000; // 30 seconds - mark as offline if no ping
+
+// Handle preflight requests
+app.options('*', cors());
 
 /**
  * Middleware: Verify JWT token
