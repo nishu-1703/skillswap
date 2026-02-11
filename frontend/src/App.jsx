@@ -69,7 +69,7 @@ function Header() {
           <>
             {/* Messages Button */}
             <button 
-              onClick={() => navigate('/#/messages')}
+              onClick={() => navigate('/messages')}
               className="btn btn-secondary btn-sm"
               style={{ 
                 background: 'rgba(255,255,255,0.15)',
@@ -128,7 +128,7 @@ function Header() {
         ) : (
           <>
             <button 
-              onClick={() => navigate('/#/login')}
+              onClick={() => navigate('/login')}
               className="btn btn-secondary btn-sm"
               style={{ 
                 background: 'rgba(255,255,255,0.15)',
@@ -141,7 +141,7 @@ function Header() {
               Sign In
             </button>
             <button 
-              onClick={() => navigate('/#/signup')}
+              onClick={() => navigate('/signup')}
               className="btn btn-primary btn-sm"
               aria-label="Create a new account"
             >

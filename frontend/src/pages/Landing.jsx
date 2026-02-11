@@ -54,7 +54,7 @@ export default function Landing() {
           }}>
             {user ? (
               <button 
-                onClick={() => navigate('#/dashboard')}
+                onClick={() => navigate('/dashboard')}
                 className="btn btn-primary btn-lg"
                 aria-label="Go to your dashboard"
               >
@@ -63,14 +63,14 @@ export default function Landing() {
             ) : (
               <>
                 <button 
-                  onClick={() => navigate('#/signup')}
+                  onClick={() => navigate('/signup')}
                   className="btn btn-primary btn-lg"
                   aria-label="Create a new SkillSwap account"
                 >
                   Get Started
                 </button>
                 <button 
-                  onClick={() => navigate('#/login')}
+                  onClick={() => navigate('/login')}
                   className="btn btn-secondary btn-lg"
                   style={{ 
                     background: 'rgba(255, 255, 255, 0.15)',
@@ -232,7 +232,7 @@ export default function Landing() {
               Join SkillSwap today and start exchanging knowledge with our community.
             </p>
             <button 
-              onClick={() => navigate('#/signup')}
+              onClick={() => navigate('/signup')}
               className="btn"
               style={{ 
                 background: 'white',
