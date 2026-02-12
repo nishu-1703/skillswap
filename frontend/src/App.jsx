@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { API_BASE_URL } from './config'
 import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
+import DashboardNew from './pages/DashboardNew'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import Messaging from './pages/Messaging'
@@ -172,6 +173,7 @@ function Header() {
 function AppContent() {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   if (loading) return (
     <div 
@@ -191,15 +193,22 @@ function AppContent() {
     </div>
   )
 
+  // If on new dashboard, don't show the Header wrapper
+  const isDashboardNew = location.pathname === '/dashboard'
+
+  if (isDashboardNew && user) {
+    return <DashboardNew />
+  }
+
   return (
     <div className="app" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
       <main className="main-content" style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 var(--spacing-lg)', flex: 1 }}>
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/login" element={user ? <Dashboard /> : <LoginPage />} />
-          <Route path="/signup" element={user ? <Dashboard /> : <SignupPage />} />
-          <Route path="/dashboard" element={user ? <Dashboard /> : <LoginPage />} />
+          <Route path="/login" element={user ? <DashboardNew /> : <LoginPage />} />
+          <Route path="/signup" element={user ? <DashboardNew /> : <SignupPage />} />
+          <Route path="/dashboard" element={user ? <DashboardNew /> : <LoginPage />} />
           <Route path="/messages" element={user ? <Messaging /> : <LoginPage />} />
         </Routes>
       </main>
