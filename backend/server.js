@@ -7,7 +7,8 @@ const {
   getSkill, getAllSkills, getUserSkills, addSkill, deleteSkill,
   getSession, getUserSessions, createSession, updateSessionStatus, updateUserCredits, getUserCredits,
   getReviews, addReview, checkReviewExists, resetDemo,
-  addCreditTransaction, getTransactionHistory, getActiveCredits, getExpiringCredits, expireOldCredits, awardTeachingCredits, deductLearningCredits
+  addCreditTransaction, getTransactionHistory, getActiveCredits, getExpiringCredits, expireOldCredits, awardTeachingCredits, deductLearningCredits,
+  saveDirectMessage, getDirectMessages, getConversationUsers
 } = require('./db');
 
 const app = express();
@@ -255,102 +256,95 @@ app.get('/api/online/users', verifyToken, async (req, res) => {
 });
 
 app.get('/api/conversations', verifyToken, async (req, res) => {
-  // Get all people current user has sessions with (for conversations)
-  const userSessions = await getUserSessions(req.userId);
-  const conversationMap = {};
-  
-  userSessions.forEach(s => {
-    const otherUserId = s.learnerId === req.userId ? s.teacherId : s.learnerId;
-    const otherUserName = s.learnerId === req.userId ? s.teacherName : s.learnerName;
-    if (!conversationMap[otherUserId]) {
-      conversationMap[otherUserId] = {
-        userId: otherUserId,
-        name: otherUserName,
-        lastMessage: null,
-        unreadCount: 0
-      };
+  try {
+    // Get all people current user has sessions with
+    const userSessions = await getUserSessions(req.userId);
+    const conversationMap = {};
+    
+    userSessions.forEach(s => {
+      const otherUserId = s.learnerId === req.userId ? s.teacherId : s.learnerId;
+      const otherUserName = s.learnerId === req.userId ? s.teacherName : s.learnerName;
+      if (!conversationMap[otherUserId]) {
+        conversationMap[otherUserId] = {
+          userId: otherUserId,
+          name: otherUserName,
+          lastMessage: null,
+          unreadCount: 0
+        };
+      }
+    });
+    
+    // Also add conversations from direct messages in database
+    const conversationUserIds = await getConversationUsers(req.userId);
+    for (const otherUserId of conversationUserIds) {
+      if (conversationMap[otherUserId]) continue; // Already in conversation from sessions
+      
+      const otherUser = await getUser(otherUserId);
+      const messages = await getDirectMessages(req.userId, otherUserId);
+      
+      if (messages.length > 0) {
+        const lastMsg = messages[messages.length - 1];
+        conversationMap[otherUserId] = {
+          userId: otherUserId,
+          name: otherUser?.name || `User ${otherUserId.slice(-4)}`,
+          lastMessage: lastMsg,
+          unreadCount: 0
+        };
+      }
     }
-  });
-  
-  // Also add conversations from direct messages (even without sessions)
-  for (const key in chatStore) {
-    const msgs = chatStore[key];
-    if (!msgs || msgs.length === 0) continue;
     
-    // Extract userIds from conversationKey format: "userId1_userId2"
-    const [user1, user2] = key.split('_');
-    if (!user1 || !user2) continue;
-    
-    const otherUserId = user1 === req.userId ? user2 : user1;
-    if (otherUserId === req.userId) continue; // Skip self-conversations
-    
-    // Skip if already in conversation from sessions
-    if (conversationMap[otherUserId]) continue;
-    
-    // Get sender's name from the first message (or fallback)
-    const lastMsg = msgs[msgs.length - 1];
-    const senderInfo = await getUser(lastMsg.senderId);
-    
-    conversationMap[otherUserId] = {
-      userId: otherUserId,
-      name: senderInfo?.name || `User ${otherUserId.slice(-4)}`,
-      lastMessage: lastMsg,
-      unreadCount: 0
-    };
-  }
-  
-  // Get last message for each conversation (in case it wasn't set from chatStore)
-  for (const userId in conversationMap) {
-    if (conversationMap[userId].lastMessage) continue; // Already set
-    
-    const conversationKey = [req.userId, userId].sort().join('_');
-    const msgs = chatStore[conversationKey] || [];
-    
-    if (msgs.length > 0) {
-      const lastMsg = msgs[msgs.length - 1];
-      conversationMap[userId].lastMessage = lastMsg;
+    // Get last messages from database for each conversation
+    for (const userId in conversationMap) {
+      if (conversationMap[userId].lastMessage) continue; // Already set
+      
+      const messages = await getDirectMessages(req.userId, userId);
+      if (messages.length > 0) {
+        const lastMsg = messages[messages.length - 1];
+        conversationMap[userId].lastMessage = lastMsg;
+      }
     }
+    
+    const conversations = Object.values(conversationMap).sort((a, b) => {
+      const aTime = a.lastMessage ? new Date(a.lastMessage.createdAt) : new Date(0);
+      const bTime = b.lastMessage ? new Date(b.lastMessage.createdAt) : new Date(0);
+      return bTime - aTime;
+    });
+    
+    res.json(conversations);
+  } catch (error) {
+    console.error('Get conversations error:', error);
+    res.status(500).json({ error: 'Failed to fetch conversations' });
   }
-  
-  const conversations = Object.values(conversationMap).sort((a, b) => {
-    const aTime = a.lastMessage ? new Date(a.lastMessage.createdAt) : new Date(0);
-    const bTime = b.lastMessage ? new Date(b.lastMessage.createdAt) : new Date(0);
-    return bTime - aTime;
-  });
-  
-  res.json(conversations);
 });
 
 app.get('/api/direct-chat/:otherUserId', verifyToken, async (req, res) => {
-  // Get direct messages with another user using conversation key
-  const otherUserId = req.params.otherUserId;
-  const conversationKey = [req.userId, otherUserId].sort().join('_');
-  
-  const messages = chatStore[conversationKey] || [];
-  const sorted = messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  res.json(sorted);
+  try {
+    const otherUserId = req.params.otherUserId;
+    const messages = await getDirectMessages(req.userId, otherUserId);
+    res.json(messages);
+  } catch (error) {
+    console.error('Get messages error:', error);
+    res.status(500).json({ error: 'Failed to fetch messages' });
+  }
 });
 
 app.post('/api/direct-chat/:otherUserId', verifyToken, async (req, res) => {
-  // Send a direct message (store under a virtual conversation key)
-  const { text } = req.body;
-  if (!text) return res.status(400).json({ error: 'Message text required' });
-  
-  const otherUserId = req.params.otherUserId;
-  const conversationKey = [req.userId, otherUserId].sort().join('_');
-  
-  const message = {
-    id: 'msg_' + Date.now(),
-    conversationKey,
-    senderId: req.userId,
-    receiverId: otherUserId,
-    text,
-    createdAt: new Date().toISOString()
-  };
-  
-  chatStore[conversationKey] = chatStore[conversationKey] || [];
-  chatStore[conversationKey].push(message);
-  res.status(201).json(message);
+  try {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ error: 'Message text required' });
+    
+    const otherUserId = req.params.otherUserId;
+    const message = await saveDirectMessage(req.userId, otherUserId, text);
+    
+    if (!message) {
+      return res.status(500).json({ error: 'Failed to save message' });
+    }
+    
+    res.status(201).json(message);
+  } catch (error) {
+    console.error('Save message error:', error);
+    res.status(500).json({ error: 'Failed to send message' });
+  }
 });
 
 app.post('/api/conversations/:otherUserId/mark-read', verifyToken, async (req, res) => {

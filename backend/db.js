@@ -102,6 +102,17 @@ async function initializeDB() {
         status TEXT DEFAULT 'active' CHECK (status IN ('active', 'expired')),
         FOREIGN KEY ("userId") REFERENCES users(id),
         FOREIGN KEY ("sessionId") REFERENCES sessions(id)
+      );
+
+      CREATE TABLE IF NOT EXISTS direct_messages (
+        id TEXT PRIMARY KEY,
+        "senderId" TEXT NOT NULL,
+        "receiverId" TEXT NOT NULL,
+        text TEXT NOT NULL,
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "isRead" BOOLEAN DEFAULT false,
+        FOREIGN KEY ("senderId") REFERENCES users(id),
+        FOREIGN KEY ("receiverId") REFERENCES users(id)
       )
     `);
 
@@ -506,6 +517,56 @@ async function deductLearningCredits(learnerId, sessionId, creditAmount = 10) {
   }
 }
 
+async function saveDirectMessage(senderId, receiverId, text) {
+  try {
+    const id = 'msg_' + Date.now();
+    await pool.query(
+      `INSERT INTO direct_messages (id, "senderId", "receiverId", text) VALUES ($1, $2, $3, $4)`,
+      [id, senderId, receiverId, text]
+    );
+    return { id, senderId, receiverId, text, createdAt: new Date().toISOString() };
+  } catch (error) {
+    console.error('Save message error:', error);
+    return null;
+  }
+}
+
+async function getDirectMessages(userId, otherUserId) {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM direct_messages 
+       WHERE ("senderId" = $1 AND "receiverId" = $2) 
+          OR ("senderId" = $2 AND "receiverId" = $1)
+       ORDER BY "createdAt" ASC`,
+      [userId, otherUserId]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Get messages error:', error);
+    return [];
+  }
+}
+
+async function getConversationUsers(userId) {
+  try {
+    const result = await pool.query(
+      `SELECT DISTINCT 
+         CASE 
+           WHEN "senderId" = $1 THEN "receiverId"
+           ELSE "senderId"
+         END as "otherUserId"
+       FROM direct_messages
+       WHERE "senderId" = $1 OR "receiverId" = $1
+       ORDER BY "createdAt" DESC`,
+      [userId]
+    );
+    return result.rows.map(r => r.otherUserId);
+  } catch (error) {
+    console.error('Get conversation users error:', error);
+    return [];
+  }
+}
+
 module.exports = {
   initializeDB,
   getUser,
@@ -532,5 +593,7 @@ module.exports = {
   getExpiringCredits,
   expireOldCredits,
   awardTeachingCredits,
-  deductLearningCredits
-};
+  deductLearningCredits,
+  saveDirectMessage,
+  getDirectMessages,
+  getConversationUsers
