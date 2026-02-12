@@ -272,8 +272,37 @@ app.get('/api/conversations', verifyToken, async (req, res) => {
     }
   });
   
-  // Get last message for each conversation
+  // Also add conversations from direct messages (even without sessions)
+  for (const key in chatStore) {
+    const msgs = chatStore[key];
+    if (!msgs || msgs.length === 0) continue;
+    
+    // Extract userIds from conversationKey format: "userId1_userId2"
+    const [user1, user2] = key.split('_');
+    if (!user1 || !user2) continue;
+    
+    const otherUserId = user1 === req.userId ? user2 : user1;
+    if (otherUserId === req.userId) continue; // Skip self-conversations
+    
+    // Skip if already in conversation from sessions
+    if (conversationMap[otherUserId]) continue;
+    
+    // Get sender's name from the first message (or fallback)
+    const lastMsg = msgs[msgs.length - 1];
+    const senderInfo = await getUser(lastMsg.senderId);
+    
+    conversationMap[otherUserId] = {
+      userId: otherUserId,
+      name: senderInfo?.name || `User ${otherUserId.slice(-4)}`,
+      lastMessage: lastMsg,
+      unreadCount: 0
+    };
+  }
+  
+  // Get last message for each conversation (in case it wasn't set from chatStore)
   for (const userId in conversationMap) {
+    if (conversationMap[userId].lastMessage) continue; // Already set
+    
     const conversationKey = [req.userId, userId].sort().join('_');
     const msgs = chatStore[conversationKey] || [];
     
