@@ -301,21 +301,12 @@ app.get('/api/conversations', verifyToken, async (req, res) => {
 });
 
 app.get('/api/direct-chat/:otherUserId', verifyToken, async (req, res) => {
-  // Get direct messages with another user (across all sessions)
+  // Get direct messages with another user using conversation key
   const otherUserId = req.params.otherUserId;
-  const userSessions = await getUserSessions(req.userId);
-  const relevantSessions = userSessions.filter(
-    s => (s.learnerId === req.userId && s.teacherId === otherUserId) || 
-         (s.teacherId === req.userId && s.learnerId === otherUserId)
-  );
+  const conversationKey = [req.userId, otherUserId].sort().join('_');
   
-  const allMessages = [];
-  relevantSessions.forEach(s => {
-    const msgs = chatStore[s.id] || [];
-    allMessages.push(...msgs);
-  });
-  
-  const sorted = allMessages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  const messages = chatStore[conversationKey] || [];
+  const sorted = messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   res.json(sorted);
 });
 
