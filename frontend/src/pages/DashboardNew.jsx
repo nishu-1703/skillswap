@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../config'
+import SkillManager from '../components/SkillManager'
+import SkillBrowser from '../components/SkillBrowser'
+import SessionManager from '../components/SessionManager'
+import Messaging from './Messaging'
 
 export default function DashboardNew() {
   const { user } = useAuth()
@@ -145,6 +149,7 @@ export default function DashboardNew() {
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
           {[
             { id: 'overview', label: '📊 Overview', icon: '📊' },
+            { id: 'explore', label: '🔍 Explore Skills', icon: '🔍' },
             { id: 'skills', label: '🎓 My Skills', icon: '🎓' },
             { id: 'exchanges', label: '🔄 Exchanges', icon: '🔄' },
             { id: 'messages', label: '💬 Messages', icon: '💬' },
@@ -226,7 +231,7 @@ export default function DashboardNew() {
 
             {/* Add Skill Button */}
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => setActivePanel('skills')}
               style={{
                 background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
                 color: 'white',
@@ -521,45 +526,57 @@ export default function DashboardNew() {
           {/* OTHER PANELS */}
           {activePanel === 'skills' && (
             <div style={{ gridColumn: '1 / -1' }}>
-              <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                <h2 style={{ color: 'white' }}>Your Skills Manager</h2>
-                <p style={{ color: '#a5b4fc' }}>Manage and showcase your skills here</p>
-              </div>
+              <SkillManager onSkillAdded={() => fetchData()} />
+            </div>
+          )}
+
+          {activePanel === 'explore' && (
+            <div style={{ gridColumn: '1 / -1' }}>
+              <SkillBrowser />
             </div>
           )}
 
           {activePanel === 'exchanges' && (
             <div style={{ gridColumn: '1 / -1' }}>
-              <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                <h2 style={{ color: 'white' }}>Exchanges</h2>
-                <p style={{ color: '#a5b4fc' }}>View and manage your skill exchanges</p>
-              </div>
+              <SessionManager />
             </div>
           )}
 
           {activePanel === 'messages' && (
             <div style={{ gridColumn: '1 / -1' }}>
-              <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                <h2 style={{ color: 'white' }}>Messages</h2>
-                <p style={{ color: '#a5b4fc' }}>Your conversations</p>
-              </div>
+              <Messaging />
             </div>
           )}
 
           {activePanel === 'profile' && (
             <div style={{ gridColumn: '1 / -1' }}>
-              <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                <h2 style={{ color: 'white' }}>Profile</h2>
-                <p style={{ color: '#a5b4fc' }}>Your profile information</p>
+              <div style={{ background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)', border: '1px solid rgba(79, 70, 229, 0.2)', borderRadius: '12px', padding: 'var(--spacing-2xl)' }}>
+                <h2 style={{ color: 'white', marginBottom: 'var(--spacing-lg)' }}>👤 Your Profile</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 'var(--spacing-2xl)' }}>
+                  <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
+                    <p style={{ margin: '0 0 var(--spacing-xs)', color: '#a5b4fc', fontSize: '0.85rem' }}>Name</p>
+                    <p style={{ margin: '0', color: 'white', fontSize: '1.1rem', fontWeight: 'bold' }}>{user.name}</p>
+                  </div>
+                  <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
+                    <p style={{ margin: '0 0 var(--spacing-xs)', color: '#a5b4fc', fontSize: '0.85rem' }}>Email</p>
+                    <p style={{ margin: '0', color: 'white', fontSize: '1.1rem', fontWeight: 'bold' }}>{user.email}</p>
+                  </div>
+                  <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
+                    <p style={{ margin: '0 0 var(--spacing-xs)', color: '#a5b4fc', fontSize: '0.85rem' }}>Credits Available</p>
+                    <p style={{ margin: '0', color: '#fbbf24', fontSize: '1.1rem', fontWeight: 'bold' }}>💰 {user.credits}</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           {activePanel === 'settings' && (
             <div style={{ gridColumn: '1 / -1' }}>
-              <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                <h2 style={{ color: 'white' }}>Settings</h2>
-                <p style={{ color: '#a5b4fc' }}>Configure your preferences</p>
+              <div style={{ background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)', border: '1px solid rgba(79, 70, 229, 0.2)', borderRadius: '12px', padding: 'var(--spacing-2xl)' }}>
+                <h2 style={{ color: 'white', marginBottom: 'var(--spacing-lg)' }}>⚙️ Settings</h2>
+                <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
+                  <p style={{ margin: '0 0 var(--spacing-md)', color: '#a5b4fc' }}>Settings will be available soon. Stay tuned!</p>
+                </div>
               </div>
             </div>
           )}
