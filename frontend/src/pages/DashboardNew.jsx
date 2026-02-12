@@ -6,6 +6,7 @@ import SkillManager from '../components/SkillManager'
 import SkillBrowser from '../components/SkillBrowser'
 import SessionManager from '../components/SessionManager'
 import Messaging from './Messaging'
+import CreditPanel from '../components/CreditPanel'
 
 export default function DashboardNew() {
   const { user } = useAuth()
@@ -13,6 +14,7 @@ export default function DashboardNew() {
   const [skills, setSkills] = useState([])
   const [allSkills, setAllSkills] = useState([])
   const [sessions, setSessions] = useState([])
+  const [creditBalance, setCreditBalance] = useState(0)
   const [loading, setLoading] = useState(true)
   const [activePanel, setActivePanel] = useState('overview')
 
@@ -50,6 +52,15 @@ export default function DashboardNew() {
       if (sessionsRes.ok) {
         const sessionsData = await sessionsRes.json()
         setSessions(sessionsData)
+      }
+
+      // Fetch credit balance
+      const creditRes = await fetch(`${API_BASE_URL}/api/credits/balance`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (creditRes.ok) {
+        const creditData = await creditRes.json()
+        setCreditBalance(creditData.currentBalance || 0)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -141,6 +152,19 @@ export default function DashboardNew() {
             </p>
             <p style={{ margin: '0', color: '#4ade80', fontSize: '2rem', fontWeight: 'bold' }}>
               {skillScore}
+            </p>
+          </div>
+
+          {/* Credit Balance */}
+          <div style={{ marginTop: 'var(--spacing-lg)', padding: 'var(--spacing-md)', background: 'rgba(79, 70, 229, 0.1)', borderRadius: '8px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
+            <p style={{ margin: '0 0 var(--spacing-xs)', color: '#c4b5fd', fontSize: '0.85rem', fontWeight: 'bold' }}>
+              💳 Credits
+            </p>
+            <p style={{ margin: '0', color: '#a78bfa', fontSize: '1.8rem', fontWeight: 'bold' }}>
+              {creditBalance}
+            </p>
+            <p style={{ margin: 'var(--spacing-xs) 0 0 0', color: '#9ca3af', fontSize: '0.7rem' }}>
+              Available balance
             </p>
           </div>
         </div>
@@ -350,7 +374,10 @@ export default function DashboardNew() {
                 </div>
               </div>
 
-              {/* Panel 3: Active Exchanges */}
+              {/* Panel 3: Credit Balance */}
+              <CreditPanel />
+
+              {/* Panel 4: Active Exchanges */}
               <div
                 style={{
                   background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)',

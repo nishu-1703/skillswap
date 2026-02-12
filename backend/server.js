@@ -6,7 +6,8 @@ const {
   initializeDB, getUser, getUserByEmail, createUser, 
   getSkill, getAllSkills, getUserSkills, addSkill, deleteSkill,
   getSession, getUserSessions, createSession, updateSessionStatus, updateUserCredits, getUserCredits,
-  getReviews, addReview, checkReviewExists, resetDemo
+  getReviews, addReview, checkReviewExists, resetDemo,
+  addCreditTransaction, getTransactionHistory, getActiveCredits, getExpiringCredits, expireOldCredits, awardTeachingCredits, deductLearningCredits
 } = require('./db');
 
 const app = express();
@@ -371,9 +372,14 @@ app.put('/api/sessions/:id', verifyToken, async (req, res) => {
       return res.status(400).json({ error: 'Insufficient credits' });
     }
 
-    // Transfer credits
-    await updateUserCredits(session.learnerId, -LEARN_COST);
-    await updateUserCredits(session.teacherId, TEACH_EARN);
+    // Deduct credits from learner (via transaction)
+    const deductResult = await deductLearningCredits(session.learnerId, req.params.id, LEARN_COST);
+    if (!deductResult.success) {
+      return res.status(400).json({ error: deductResult.error });
+    }
+    
+    // Award credits to teacher (via transaction)
+    await awardTeachingCredits(session.teacherId, req.params.id, TEACH_EARN);
   }
 
   await updateSessionStatus(req.params.id, status);
@@ -448,6 +454,96 @@ app.get('/api/reviews/:userId', async (req, res) => {
     totalReviews: userReviews.length,
     averageRating: avgRating
   });
+});
+
+/**
+ * Credit Transaction Routes
+ */
+app.get('/api/credits/transactions', verifyToken, async (req, res) => {
+  try {
+    const limit = req.query.limit || 20;
+    const transactions = await getTransactionHistory(req.userId, parseInt(limit));
+    
+    // Expire old credits before returning
+    await expireOldCredits(req.userId);
+    
+    res.json(transactions);
+  } catch (error) {
+    console.error('Transactions fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch transactions: ' + error.message });
+  }
+});
+
+app.get('/api/credits/expiring', verifyToken, async (req, res) => {
+  try {
+    const expiringCredits = await getExpiringCredits(req.userId);
+    res.json({ expiringCredits, count: expiringCredits.length });
+  } catch (error) {
+    console.error('Expiring credits fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch expiring credits: ' + error.message });
+  }
+});
+
+app.post('/api/credits/award-teaching', verifyToken, async (req, res) => {
+  try {
+    const { sessionId, creditAmount = 10 } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ error: 'sessionId required' });
+    }
+    
+    const success = await awardTeachingCredits(req.userId, sessionId, creditAmount);
+    
+    if (!success) {
+      return res.status(500).json({ error: 'Failed to award teaching credits' });
+    }
+    
+    const user = await getUser(req.userId);
+    res.json({ success: true, newBalance: user.credits, creditAwarded: creditAmount });
+  } catch (error) {
+    console.error('Award teaching credits error:', error);
+    res.status(500).json({ error: 'Failed to award credits: ' + error.message });
+  }
+});
+
+app.post('/api/credits/deduct-learning', verifyToken, async (req, res) => {
+  try {
+    const { sessionId, creditAmount = 10 } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ error: 'sessionId required' });
+    }
+    
+    const result = await deductLearningCredits(req.userId, sessionId, creditAmount);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    const user = await getUser(req.userId);
+    res.json({ success: true, newBalance: user.credits, creditDeducted: creditAmount });
+  } catch (error) {
+    console.error('Deduct learning credits error:', error);
+    res.status(500).json({ error: 'Failed to deduct credits: ' + error.message });
+  }
+});
+
+app.get('/api/credits/balance', verifyToken, async (req, res) => {
+  try {
+    const user = await getUser(req.userId);
+    const transactions = await getTransactionHistory(req.userId, 100);
+    const expiringCredits = await getExpiringCredits(req.userId);
+    
+    res.json({
+      currentBalance: user.credits,
+      transactions,
+      expiringCredits,
+      expiringCount: expiringCredits.length
+    });
+  } catch (error) {
+    console.error('Balance fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch balance: ' + error.message });
+  }
 });
 
 // Root route

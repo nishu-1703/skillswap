@@ -89,6 +89,22 @@ async function initializeDB() {
       )
     `);
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS credit_transactions (
+        id TEXT PRIMARY KEY,
+        "userId" TEXT NOT NULL,
+        amount INTEGER NOT NULL,
+        type TEXT NOT NULL CHECK (type IN ('earn', 'spend')),
+        reason TEXT NOT NULL,
+        "sessionId" TEXT,
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "expiresAt" TIMESTAMP,
+        status TEXT DEFAULT 'active' CHECK (status IN ('active', 'expired')),
+        FOREIGN KEY ("userId") REFERENCES users(id),
+        FOREIGN KEY ("sessionId") REFERENCES sessions(id)
+      )
+    `);
+
     // Initialize demo data if users table is empty
     const userCount = await pool.query('SELECT COUNT(*) as count FROM users');
     if (parseInt(userCount.rows[0].count) === 0) {
@@ -352,12 +368,141 @@ async function checkReviewExists(sessionId, reviewerId) {
 async function resetDemo() {
   try {
     await pool.query('DELETE FROM reviews');
+    await pool.query('DELETE FROM credit_transactions');
     await pool.query('DELETE FROM sessions');
     await pool.query('DELETE FROM skills');
     await pool.query('DELETE FROM users');
     await insertDemoData();
   } catch (error) {
     console.error('Reset error:', error);
+  }
+}
+
+// Credit Transaction Functions
+async function addCreditTransaction(userId, amount, type, reason, sessionId = null) {
+  try {
+    const id = 'txn_' + Date.now();
+    // Credits earned from teaching expire after 6 months (180 days)
+    const expiresAt = type === 'earn' ? new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) : null;
+    
+    const result = await pool.query(
+      `INSERT INTO credit_transactions (id, "userId", amount, type, reason, "sessionId", "expiresAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [id, userId, amount, type, reason, sessionId, expiresAt]
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.error('Add credit transaction error:', error);
+    return null;
+  }
+}
+
+async function getTransactionHistory(userId, limit = 20) {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM credit_transactions 
+       WHERE "userId" = $1 
+       ORDER BY "createdAt" DESC 
+       LIMIT $2`,
+      [userId, limit]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Get transaction history error:', error);
+    return [];
+  }
+}
+
+async function getActiveCredits(userId) {
+  try {
+    const result = await pool.query(
+      `SELECT SUM(CASE WHEN type = 'earn' THEN amount ELSE -amount END) as "activeCredits"
+       FROM credit_transactions
+       WHERE "userId" = $1 AND status = 'active' AND (type = 'earn' OR type = 'spend')`,
+      [userId]
+    );
+    return result.rows[0]?.activeCredits || 0;
+  } catch (error) {
+    console.error('Get active credits error:', error);
+    return 0;
+  }
+}
+
+async function getExpiringCredits(userId) {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM credit_transactions
+       WHERE "userId" = $1 
+       AND status = 'active'
+       AND type = 'earn'
+       AND "expiresAt" IS NOT NULL
+       AND "expiresAt" > NOW()
+       AND "expiresAt" < NOW() + INTERVAL '30 days'
+       ORDER BY "expiresAt" ASC`,
+      [userId]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Get expiring credits error:', error);
+    return [];
+  }
+}
+
+async function expireOldCredits(userId) {
+  try {
+    const result = await pool.query(
+      `UPDATE credit_transactions
+       SET status = 'expired'
+       WHERE "userId" = $1
+       AND status = 'active'
+       AND type = 'earn'
+       AND "expiresAt" < NOW()
+       RETURNING *`,
+      [userId]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Expire old credits error:', error);
+    return [];
+  }
+}
+
+async function awardTeachingCredits(teacherId, sessionId, creditAmount = 10) {
+  try {
+    // Award credits for teaching
+    await addCreditTransaction(teacherId, creditAmount, 'earn', 'Teaching session completed', sessionId);
+    // Update total user credits
+    await pool.query(
+      `UPDATE users SET credits = credits + $1 WHERE id = $2`,
+      [creditAmount, teacherId]
+    );
+    return true;
+  } catch (error) {
+    console.error('Award teaching credits error:', error);
+    return false;
+  }
+}
+
+async function deductLearningCredits(learnerId, sessionId, creditAmount = 10) {
+  try {
+    // Check if user has enough credits
+    const user = await getUser(learnerId);
+    if (user.credits < creditAmount) {
+      return { success: false, error: 'Insufficient credits' };
+    }
+    
+    // Deduct credits for learning
+    await addCreditTransaction(learnerId, creditAmount, 'spend', 'Learning session started', sessionId);
+    // Update total user credits
+    await pool.query(
+      `UPDATE users SET credits = credits - $1 WHERE id = $2`,
+      [creditAmount, learnerId]
+    );
+    return { success: true };
+  } catch (error) {
+    console.error('Deduct learning credits error:', error);
+    return { success: false, error: error.message };
   }
 }
 
@@ -380,5 +525,12 @@ module.exports = {
   getReviews,
   addReview,
   checkReviewExists,
-  resetDemo
+  resetDemo,
+  addCreditTransaction,
+  getTransactionHistory,
+  getActiveCredits,
+  getExpiringCredits,
+  expireOldCredits,
+  awardTeachingCredits,
+  deductLearningCredits
 };
