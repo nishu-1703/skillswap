@@ -39,7 +39,16 @@ export default function Messaging() {
       })
       if (res.ok) {
         const data = await res.json()
-        setMessages(data)
+        console.log(`Fetched ${data.length} messages from ${otherUserId}`)
+        setMessages(prevMessages => {
+          // Merge new messages with existing ones, preventing duplicates
+          const messageMap = new Map()
+          prevMessages.forEach(m => messageMap.set(m.id, m))
+          data.forEach(m => messageMap.set(m.id, m))
+          return Array.from(messageMap.values()).sort((a, b) => 
+            new Date(a.createdAt) - new Date(b.createdAt)
+          )
+        })
       }
     } catch (err) {
       console.error('Failed to fetch messages:', err)
@@ -115,7 +124,7 @@ export default function Messaging() {
       fetchMessages(selectedUserId)
       // Mark as read
       markAsRead(selectedUserId)
-      const msgInterval = setInterval(() => fetchMessages(selectedUserId), 2000)
+      const msgInterval = setInterval(() => fetchMessages(selectedUserId), 3000)
       return () => clearInterval(msgInterval)
     }
   }, [selectedUserId])
@@ -129,7 +138,9 @@ export default function Messaging() {
     e.preventDefault()
     if (!newMessage.trim() || !selectedUserId) return
 
-    setLoading(true)
+    const messageText = newMessage
+    setNewMessage('')
+    
     try {
       const token = localStorage.getItem('token')
       const res = await fetch(`${API_BASE_URL}/api/direct-chat/${selectedUserId}`, {
@@ -138,17 +149,25 @@ export default function Messaging() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ text: newMessage })
+        body: JSON.stringify({ text: messageText })
       })
       if (res.ok) {
         const msg = await res.json()
-        setMessages(prev => [...prev, msg])
-        setNewMessage('')
+        setMessages(prev => {
+          // Check if message already exists
+          if (prev.some(m => m.id === msg.id)) return prev
+          return [...prev, msg]
+        })
+        // Refresh after a short delay to sync with server
+        setTimeout(() => fetchMessages(selectedUserId), 500)
+      } else {
+        // Restore message if send failed
+        setNewMessage(messageText)
+        console.error('Failed to send message:', await res.text())
       }
     } catch (err) {
+      setNewMessage(messageText)
       console.error('Failed to send message:', err)
-    } finally {
-      setLoading(false)
     }
   }
 

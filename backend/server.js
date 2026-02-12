@@ -274,21 +274,13 @@ app.get('/api/conversations', verifyToken, async (req, res) => {
   
   // Get last message for each conversation
   for (const userId in conversationMap) {
-    const sessionIds = userSessions
-      .filter(s => (s.learnerId === req.userId && s.teacherId === userId) || (s.teacherId === req.userId && s.learnerId === userId))
-      .map(s => s.id);
+    const conversationKey = [req.userId, userId].sort().join('_');
+    const msgs = chatStore[conversationKey] || [];
     
-    let lastMsg = null;
-    for (const sessionId of sessionIds) {
-      const msgs = chatStore[sessionId] || [];
-      if (msgs.length > 0) {
-        const msg = msgs[msgs.length - 1];
-        if (!lastMsg || new Date(msg.createdAt) > new Date(lastMsg.createdAt)) {
-          lastMsg = msg;
-        }
-      }
+    if (msgs.length > 0) {
+      const lastMsg = msgs[msgs.length - 1];
+      conversationMap[userId].lastMessage = lastMsg;
     }
-    conversationMap[userId].lastMessage = lastMsg;
   }
   
   const conversations = Object.values(conversationMap).sort((a, b) => {
