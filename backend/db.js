@@ -597,3 +597,4 @@ module.exports = {
   saveDirectMessage,
   getDirectMessages,
   getConversationUsers
+};
