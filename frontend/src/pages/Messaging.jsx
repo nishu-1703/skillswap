@@ -131,8 +131,12 @@ export default function Messaging() {
     fetchConversations()
     fetchOnlineStatus()
 
+    // Poll for conversations every 3 seconds to update last messages
+    const convInterval = setInterval(fetchConversations, 3000)
+
     return () => {
       socketRef.current?.disconnect()
+      clearInterval(convInterval)
     }
   }, [user?.id])
 
