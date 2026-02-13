@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { io } from 'socket.io-client'
 import { useAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../config'
 import './Messaging.css'
@@ -12,6 +13,7 @@ export default function Messaging() {
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef(null)
+  const socketRef = useRef(null)
 
   // Fetch conversations
   const fetchConversations = async () => {
@@ -97,24 +99,37 @@ export default function Messaging() {
     }
   }
 
-  // Initialize and set up polling
+  // Initialize socket connection
   useEffect(() => {
     if (!user?.id) return
+
+    const token = localStorage.getItem('token')
+    socketRef.current = io(API_BASE_URL, {
+      auth: { token }
+    })
+
+    socketRef.current.on('connect', () => {
+      console.log('Connected to server')
+    })
+
+    socketRef.current.on('new_message', (message) => {
+      console.log('New message received:', message)
+      setMessages(prev => {
+        // Avoid duplicates
+        if (prev.some(m => m.id === message.id)) return prev
+        return [...prev, message].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+      })
+    })
+
+    socketRef.current.on('user_online', (data) => {
+      setOnlineUsers(prev => ({ ...prev, [data.userId]: data.isOnline }))
+    })
+
     fetchConversations()
     fetchOnlineStatus()
-    pingOnlineStatus()
-
-    // Poll for conversations every 3 seconds
-    const convInterval = setInterval(fetchConversations, 3000)
-    // Poll for online status every 5 seconds
-    const statusInterval = setInterval(() => {
-      fetchOnlineStatus()
-      pingOnlineStatus()
-    }, 5000)
 
     return () => {
-      clearInterval(convInterval)
-      clearInterval(statusInterval)
+      socketRef.current?.disconnect()
     }
   }, [user?.id])
 
@@ -122,10 +137,7 @@ export default function Messaging() {
   useEffect(() => {
     if (selectedUserId) {
       fetchMessages(selectedUserId)
-      // Mark as read
       markAsRead(selectedUserId)
-      const msgInterval = setInterval(() => fetchMessages(selectedUserId), 3000)
-      return () => clearInterval(msgInterval)
     }
   }, [selectedUserId])
 

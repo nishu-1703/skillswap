@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
+const http = require('http');
+const { Server } = require('socket.io');
+const rateLimit = require('express-rate-limit');
 const { 
   initializeDB, getUser, getUserByEmail, createUser, 
   getSkill, getAllSkills, getUserSkills, addSkill, deleteSkill,
@@ -21,6 +24,25 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Create HTTP server
+const server = http.createServer(app);
+
+// Socket.io setup
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+app.use(limiter);
+
 // Dynamic PORT binding
 const PORT = process.env.PORT || 4000;
 
@@ -39,6 +61,49 @@ const onlineStatus = {};
 const readStatus = {};
 
 const ONLINE_TIMEOUT = 30000; // 30 seconds - mark as offline if no ping
+
+/**
+ * Socket.io middleware for authentication
+ */
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (!token) return next(new Error('Authentication error'));
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    socket.userId = decoded.id;
+    next();
+  } catch (err) {
+    next(new Error('Authentication error'));
+  }
+});
+
+/**
+ * Socket.io connection handling
+ */
+io.on('connection', (socket) => {
+  const userId = socket.userId;
+  console.log(`User ${userId} connected`);
+
+  // Join user's room for private messages
+  socket.join(userId);
+
+  // Update online status
+  onlineStatus[userId] = { lastSeen: Date.now(), isOnline: true };
+  io.emit('user_online', { userId, isOnline: true });
+
+  // Handle disconnect
+  socket.on('disconnect', () => {
+    console.log(`User ${userId} disconnected`);
+    onlineStatus[userId] = { lastSeen: Date.now(), isOnline: false };
+    io.emit('user_online', { userId, isOnline: false });
+  });
+
+  // Handle ping for online status
+  socket.on('ping', () => {
+    onlineStatus[userId] = { lastSeen: Date.now(), isOnline: true };
+  });
+});
 
 /**
  * Middleware: Verify JWT token
@@ -340,6 +405,10 @@ app.post('/api/direct-chat/:otherUserId', verifyToken, async (req, res) => {
       return res.status(500).json({ error: 'Failed to save message' });
     }
     
+    // Emit real-time message to both users
+    io.to(req.userId).emit('new_message', message);
+    io.to(otherUserId).emit('new_message', message);
+    
     res.status(201).json(message);
   } catch (error) {
     console.error('Save message error:', error);
@@ -561,7 +630,7 @@ app.get("/", (req, res) => {
 (async () => {
   try {
     await initializeDB();
-    app.listen(PORT, '0.0.0.0', () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`SkillSwap backend listening on port ${PORT} (accessible from network)`);
     });
   } catch (err) {
