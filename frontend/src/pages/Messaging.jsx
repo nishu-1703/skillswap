@@ -114,11 +114,14 @@ export default function Messaging() {
 
     socketRef.current.on('new_message', (message) => {
       console.log('New message received:', message)
-      setMessages(prev => {
-        // Avoid duplicates
-        if (prev.some(m => m.id === message.id)) return prev
-        return [...prev, message].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-      })
+      // Only add if it's for the current conversation
+      if (selectedUserId && ((message.senderId === user.id && message.receiverId === selectedUserId) || (message.senderId === selectedUserId && message.receiverId === user.id))) {
+        setMessages(prev => {
+          // Avoid duplicates
+          if (prev.some(m => m.id === message.id)) return prev
+          return [...prev, message].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+        })
+      }
     })
 
     socketRef.current.on('user_online', (data) => {
