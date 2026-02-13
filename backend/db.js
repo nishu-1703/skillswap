@@ -157,6 +157,12 @@ async function insertDemoData() {
       ['skill_2', 'Cooking', 'Home cooking basics', '2', now]
     );
 
+    await pool.query(
+      `INSERT INTO sessions (id, "skillId", "teacherId", "learnerId", status, "requestedAt")
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      ['session_1', 'skill_1', '1', '2', 'pending', now]
+    );
+
     console.log('Demo data inserted');
   } catch (error) {
     console.error('Demo data insertion error:', error);

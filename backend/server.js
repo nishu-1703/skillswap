@@ -320,47 +320,53 @@ app.get('/api/online/users', verifyToken, async (req, res) => {
   res.json(users);
 });
 
+app.get('/api/users', verifyToken, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, name, email FROM users WHERE id != $1 ORDER BY name', [req.userId]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
 app.get('/api/conversations', verifyToken, async (req, res) => {
   try {
-    // Get all people current user has sessions with
-    const userSessions = await getUserSessions(req.userId);
+    // Get all users except current user
+    const allUsers = await pool.query('SELECT id, name FROM users WHERE id != $1', [req.userId]);
     const conversationMap = {};
     
+    // Initialize all users as potential conversations
+    allUsers.rows.forEach(user => {
+      conversationMap[user.id] = {
+        userId: user.id,
+        name: user.name,
+        lastMessage: null,
+        unreadCount: 0,
+        hasConversation: false
+      };
+    });
+    
+    // Get all people current user has sessions with and mark as having conversations
+    const userSessions = await getUserSessions(req.userId);
     userSessions.forEach(s => {
       const otherUserId = s.learnerId === req.userId ? s.teacherId : s.learnerId;
-      const otherUserName = s.learnerId === req.userId ? s.teacherName : s.learnerName;
-      if (!conversationMap[otherUserId]) {
-        conversationMap[otherUserId] = {
-          userId: otherUserId,
-          name: otherUserName,
-          lastMessage: null,
-          unreadCount: 0
-        };
+      if (conversationMap[otherUserId]) {
+        conversationMap[otherUserId].hasConversation = true;
       }
     });
     
-    // Also add conversations from direct messages in database
+    // Also add conversations from direct messages in database and mark as having conversations
     const conversationUserIds = await getConversationUsers(req.userId);
-    for (const otherUserId of conversationUserIds) {
-      if (conversationMap[otherUserId]) continue; // Already in conversation from sessions
-      
-      const otherUser = await getUser(otherUserId);
-      const messages = await getDirectMessages(req.userId, otherUserId);
-      
-      if (messages.length > 0) {
-        const lastMsg = messages[messages.length - 1];
-        conversationMap[otherUserId] = {
-          userId: otherUserId,
-          name: otherUser?.name || `User ${otherUserId.slice(-4)}`,
-          lastMessage: lastMsg,
-          unreadCount: 0
-        };
+    conversationUserIds.forEach(otherUserId => {
+      if (conversationMap[otherUserId]) {
+        conversationMap[otherUserId].hasConversation = true;
       }
-    }
+    });
     
-    // Get last messages from database for each conversation
+    // Get last messages from database for conversations that exist
     for (const userId in conversationMap) {
-      if (conversationMap[userId].lastMessage) continue; // Already set
+      if (!conversationMap[userId].hasConversation) continue;
       
       const messages = await getDirectMessages(req.userId, userId);
       if (messages.length > 0) {
