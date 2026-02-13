@@ -577,10 +577,16 @@ async function getConversationUsers(userId) {
          CASE 
            WHEN "senderId" = $1 THEN "receiverId"
            ELSE "senderId"
-         END as "otherUserId"
+         END as "otherUserId",
+         MAX("createdAt") as "lastMessageTime"
        FROM direct_messages
        WHERE "senderId" = $1 OR "receiverId" = $1
-       ORDER BY "createdAt" DESC`,
+       GROUP BY 
+         CASE 
+           WHEN "senderId" = $1 THEN "receiverId"
+           ELSE "senderId"
+         END
+       ORDER BY "lastMessageTime" DESC`,
       [userId]
     );
     return result.rows.map(r => r.otherUserId);
