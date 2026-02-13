@@ -11,7 +11,7 @@ const {
   getSession, getUserSessions, createSession, updateSessionStatus, updateUserCredits, getUserCredits,
   getReviews, addReview, checkReviewExists, resetDemo,
   addCreditTransaction, getTransactionHistory, getActiveCredits, getExpiringCredits, expireOldCredits, awardTeachingCredits, deductLearningCredits,
-  saveDirectMessage, getDirectMessages, getConversationUsers
+  saveDirectMessage, getDirectMessages, getConversationUsers, getAllUsers
 } = require('./db');
 
 const app = express();
@@ -322,8 +322,8 @@ app.get('/api/online/users', verifyToken, async (req, res) => {
 
 app.get('/api/users', verifyToken, async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, name, email FROM users WHERE id != $1 ORDER BY name', [req.userId]);
-    res.json(result.rows);
+    const users = await getAllUsers(req.userId);
+    res.json(users);
   } catch (error) {
     console.error('Get users error:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
@@ -333,11 +333,11 @@ app.get('/api/users', verifyToken, async (req, res) => {
 app.get('/api/conversations', verifyToken, async (req, res) => {
   try {
     // Get all users except current user
-    const allUsers = await pool.query('SELECT id, name FROM users WHERE id != $1', [req.userId]);
+    const allUsers = await getAllUsers(req.userId);
     const conversationMap = {};
     
     // Initialize all users as potential conversations
-    allUsers.rows.forEach(user => {
+    allUsers.forEach(user => {
       conversationMap[user.id] = {
         userId: user.id,
         name: user.name,

@@ -203,6 +203,23 @@ async function createUser(id, email, password, name) {
   }
 }
 
+async function getAllUsers(excludeUserId = null) {
+  try {
+    let query = 'SELECT id, name, email FROM users';
+    let params = [];
+    if (excludeUserId) {
+      query += ' WHERE id != $1';
+      params = [excludeUserId];
+    }
+    query += ' ORDER BY name';
+    const result = await pool.query(query, params);
+    return result.rows;
+  } catch (error) {
+    console.error('Query error:', error);
+    return [];
+  }
+}
+
 async function getSkill(id) {
   try {
     const result = await pool.query('SELECT * FROM skills WHERE id = $1', [id]);
@@ -578,6 +595,7 @@ module.exports = {
   getUser,
   getUserByEmail,
   createUser,
+  getAllUsers,
   getSkill,
   getAllSkills,
   getUserSkills,
