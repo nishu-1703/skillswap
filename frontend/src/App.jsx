@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import { API_BASE_URL } from './config'
 import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
@@ -8,6 +9,8 @@ import DashboardNew from './pages/DashboardNew'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import Messaging from './pages/Messaging'
+import { ThemeToggle } from './components/ThemeToggle'
+import { MessageSquare } from 'lucide-react'
 
 function Header() {
   const { user, logout } = useAuth()
@@ -32,139 +35,82 @@ function Header() {
   }
 
   return (
-    <header 
-      style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        padding: 'var(--spacing-lg) var(--spacing-xl)', 
-        background: 'linear-gradient(135deg, var(--color-primary) 0%, #6366f1 100%)',
-        color: 'white',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        boxShadow: 'var(--shadow-lg)'
-      }}
-      role="banner"
-    >
-      {/* Logo */}
-      <button
-        onClick={handleLogoClick}
-        style={{ 
-          cursor: 'pointer', 
-          fontWeight: 'var(--font-weight-bold)', 
-          fontSize: 'var(--font-size-2xl)', 
-          color: 'white',
-          background: 'none',
-          border: 'none',
-          padding: 'var(--spacing-md)',
-          marginRight: 'var(--spacing-xl)'
-        }}
-        aria-label="SkillSwap home"
-      >
-        SkillSwap
-      </button>
+    <header className="sticky top-0 z-100 bg-dark-900 dark:bg-dark-900 border-b border-dark-800 dark:border-dark-700 shadow-lg" role="banner">
+      <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo */}
+          <button
+            onClick={handleLogoClick}
+            className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+            aria-label="SkillSwap home"
+          >
+            ✨ SkillSwap
+          </button>
 
-      {/* Navigation - Main */}
-      <nav style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--spacing-lg)' }} aria-label="Main navigation">
-        {user ? (
-          <>
-            {/* Messages Button */}
-            <button 
-              onClick={() => navigate('/messages')}
-              className="btn btn-secondary btn-sm"
-              style={{ 
-                background: 'rgba(255,255,255,0.15)',
-                color: 'white',
-                borderColor: 'rgba(255,255,255,0.3)',
-                fontSize: 'var(--font-size-sm)'
-              }}
-              aria-label="Go to messages"
-            >
-              💬 Messages
-            </button>
+          {/* Navigation */}
+          <nav className="flex items-center gap-3 ml-auto" aria-label="Main navigation">
+            {user ? (
+              <>
+                {/* Messages Button */}
+                <button 
+                  onClick={() => navigate('/messages')}
+                  className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-dark-200 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
+                  aria-label="Go to messages"
+                >
+                  <MessageSquare size={16} />
+                  Messages
+                </button>
 
-            {/* User Info */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 'var(--spacing-lg)',
-              paddingRight: 'var(--spacing-lg)',
-              borderRight: '1px solid rgba(255,255,255,0.2)'
-            }}>
-              <span style={{ 
-                fontWeight: 'var(--font-weight-medium)',
-                fontSize: 'var(--font-size-sm)'
-              }}>
-                {user.name}
-              </span>
-              <span 
-                style={{ 
-                  fontWeight: 'var(--font-weight-bold)',
-                  background: 'rgba(255,255,255,0.15)',
-                  padding: 'var(--spacing-xs) var(--spacing-md)',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: 'var(--font-size-sm)'
-                }}
-                aria-label={`${user.credits} credits`}
-              >
-                💰 {user.credits}
+                {/* User Info */}
+                <div className="flex items-center gap-3 px-3 border-r border-dark-700">
+                  <span className="text-sm font-medium text-dark-100">
+                    {user.name}
+                  </span>
+                  <span className="inline-flex items-center px-2 py-1 text-sm font-bold bg-gradient-primary text-white rounded-md">
+                    💎 {user.credits}
+                  </span>
+                </div>
+
+                {/* Logout Button */}
+                <button 
+                  onClick={handleLogout}
+                  className="px-3 py-2 text-sm font-medium text-dark-200 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
+                  aria-label="Log out of your account"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={() => navigate('/login')}
+                  className="px-3 py-2 text-sm font-medium text-dark-200 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
+                  aria-label="Sign in to your account"
+                >
+                  Sign In
+                </button>
+                <button 
+                  onClick={() => navigate('/signup')}
+                  className="px-4 py-2 text-sm font-bold text-white bg-gradient-primary hover:shadow-glow rounded-lg transition-all"
+                  aria-label="Create a new account"
+                >
+                  Get Started
+                </button>
+              </>
+            )}
+
+            {/* Status Badge */}
+            <div className="flex items-center gap-2 px-3 text-xs font-medium">
+              <div className={`w-2 h-2 rounded-full ${backendStatus === 'ok' ? 'bg-green-500' : 'bg-red-500'}`} />
+              <span className="hidden sm:inline text-dark-400">
+                {backendStatus === 'ok' ? 'API Active' : 'API Down'}
               </span>
             </div>
 
-            {/* Logout Button */}
-            <button 
-              onClick={handleLogout}
-              className="btn btn-secondary btn-sm"
-              style={{ 
-                background: 'rgba(255,255,255,0.15)',
-                color: 'white',
-                borderColor: 'rgba(255,255,255,0.3)',
-                fontSize: 'var(--font-size-sm)'
-              }}
-              aria-label="Log out of your account"
-            >
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <button 
-              onClick={() => navigate('/login')}
-              className="btn btn-secondary btn-sm"
-              style={{ 
-                background: 'rgba(255,255,255,0.15)',
-                color: 'white',
-                borderColor: 'rgba(255,255,255,0.3)',
-                fontSize: 'var(--font-size-sm)'
-              }}
-              aria-label="Sign in to your account"
-            >
-              Sign In
-            </button>
-            <button 
-              onClick={() => navigate('/signup')}
-              className="btn btn-primary btn-sm"
-              aria-label="Create a new account"
-            >
-              Get Started
-            </button>
-          </>
-        )}
-      </nav>
-
-      {/* API Status */}
-      <div 
-        style={{ 
-          fontSize: 'var(--font-size-xs)', 
-          fontWeight: 'var(--font-weight-medium)', 
-          opacity: backendStatus === 'ok' ? 1 : 0.6,
-          marginLeft: 'var(--spacing-lg)',
-          whiteSpace: 'nowrap'
-        }}
-        aria-live="polite"
-        aria-label={`API status: ${backendStatus === 'ok' ? 'Active' : 'Down'}`}
-      >
-        {backendStatus === 'ok' ? '✓ API Active' : '✗ API Down'}
+            {/* Theme Toggle */}
+            <ThemeToggle />
+          </nav>
+        </div>
       </div>
     </header>
   )
@@ -201,9 +147,9 @@ function AppContent() {
   }
 
   return (
-    <div className="app" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app min-h-screen flex flex-col bg-dark-900 dark:bg-dark-900 text-dark-100 dark:text-dark-50">
       <Header />
-      <main className="main-content" style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 var(--spacing-lg)', flex: 1 }}>
+      <main className="main-content max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1">
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={user ? <DashboardNew /> : <LoginPage />} />
@@ -218,10 +164,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <HashRouter>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </HashRouter>
+    <ThemeProvider>
+      <HashRouter>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </HashRouter>
+    </ThemeProvider>
   )
 }
