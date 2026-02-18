@@ -27,7 +27,7 @@ export default function StatsBar() {
 
   return (
     <motion.div
-      className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 py-12 border-b border-blue-500/30 shadow-xl"
+      className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 py-16 border-b border-purple-700 shadow-2xl"
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"

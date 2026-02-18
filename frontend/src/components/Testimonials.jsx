@@ -54,7 +54,7 @@ export default function Testimonials() {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-b from-emerald-50 to-white relative overflow-hidden">
+    <section className="py-24 bg-gradient-to-b from-green-900 via-emerald-900 to-green-900 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-300 rounded-full blur-3xl opacity-10" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-300 rounded-full blur-3xl opacity-10" />
@@ -66,9 +66,9 @@ export default function Testimonials() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-4">What Our Community Says</h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 mx-auto mb-6 rounded-full" />
-          <p className="text-lg text-dark-600 max-w-2xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-green-300 to-emerald-300 bg-clip-text text-transparent mb-4">What Our Community Says</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-green-300 to-emerald-300 mx-auto mb-6 rounded-full" />
+          <p className="text-lg text-green-100 max-w-2xl mx-auto">
             Join thousands of happy learners from Hyderabad and beyond
           </p>
         </motion.div>
@@ -83,31 +83,31 @@ export default function Testimonials() {
           {testimonials.map((testimonial, idx) => (
             <motion.div
               key={idx}
-              className="bg-white p-8 rounded-2xl border-2 border-emerald-100 hover:border-emerald-400 transition shadow-lg"
+              className="bg-gradient-to-br from-emerald-800 to-green-800 p-8 rounded-2xl border-2 border-emerald-600 hover:border-green-400 transition shadow-lg hover:shadow-green-500/40"
               variants={cardVariants}
-              whileHover={{ y: -12, boxShadow: '0 20px 60px rgba(16, 185, 129, 0.15)' }}
+              whileHover={{ y: -12 }}
             >
               {/* Rating */}
               <div className="flex gap-1 mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
+                  <Star key={i} size={16} className="fill-yellow-300 text-yellow-300" />
                 ))}
               </div>
 
               {/* Quote */}
-              <p className="text-dark-700 mb-6 line-clamp-3">{testimonial.text}</p>
+              <p className="text-green-100 mb-6 line-clamp-3">{testimonial.text}</p>
 
               {/* Author */}
               <div className="flex items-center gap-3">
                 <motion.div
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm"
+                  className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold text-sm"
                   whileHover={{ scale: 1.1 }}
                 >
                   {testimonial.avatar}
                 </motion.div>
                 <div>
-                  <p className="font-semibold text-dark-900 text-sm">{testimonial.name}</p>
-                  <p className="text-dark-600 text-xs">{testimonial.location}</p>
+                  <p className="font-semibold text-white text-sm">{testimonial.name}</p>
+                  <p className="text-green-200 text-xs">{testimonial.location}</p>
                 </div>
               </div>
             </motion.div>

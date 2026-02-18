@@ -42,7 +42,7 @@ export default function WhyJoin() {
   };
 
   return (
-    <section id="why-join" className="py-24 bg-gradient-to-b from-purple-50 to-white relative overflow-hidden">
+    <section id="why-join" className="py-24 bg-gradient-to-b from-indigo-900 via-purple-900 to-indigo-900 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-20 left-0 w-80 h-80 bg-purple-300 rounded-full blur-3xl opacity-10" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-blue-300 rounded-full blur-3xl opacity-10" />
@@ -54,9 +54,9 @@ export default function WhyJoin() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">Why Join SkillSwap?</h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-purple-600 to-blue-600 mx-auto mb-6 rounded-full" />
-          <p className="text-lg text-dark-600 max-w-2xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent mb-4">Why Join SkillSwap?</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-pink-400 to-purple-400 mx-auto mb-6 rounded-full" />
+          <p className="text-lg text-purple-100 max-w-2xl mx-auto">
             Join thousands of learners and educators building a global skill-sharing community
           </p>
         </motion.div>
@@ -73,19 +73,19 @@ export default function WhyJoin() {
             return (
               <motion.div
                 key={idx}
-                className="bg-white p-8 rounded-2xl border-2 border-dark-100 hover:border-blue-400 transition shadow-lg hover:shadow-2xl"
+                className="bg-gradient-to-br from-purple-800 to-indigo-800 p-8 rounded-2xl border-2 border-purple-600 hover:border-pink-400 transition shadow-lg hover:shadow-2xl hover:shadow-pink-500/40"
                 variants={cardVariants}
-                whileHover={{ y: -12, boxShadow: '0 20px 60px rgba(59, 130, 246, 0.2)' }}
+                whileHover={{ y: -12 }}
               >
                 <motion.div
-                  className="w-14 h-14 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center mb-4"
-                  whileHover={{ rotate: 360, backgroundColor: 'rgb(37, 99, 235)', color: 'white' }}
+                  className="w-14 h-14 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center mb-4"
+                  whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <Icon className="text-blue-600" size={24} />
+                  <Icon className="text-white" size={24} />
                 </motion.div>
-                <h3 className="text-lg font-bold text-dark-900 mb-2">{feature.title}</h3>
-                <p className="text-dark-600 text-sm leading-relaxed">{feature.description}</p>
+                <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>
+                <p className="text-purple-200 text-sm leading-relaxed">{feature.description}</p>
               </motion.div>
             );
           })}

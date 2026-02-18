@@ -101,12 +101,12 @@ export default function Landing() {
         >
           {/* Animated background gradient orbs */}
           <motion.div
-            className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl"
+            className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/40 to-transparent rounded-full blur-3xl"
             animate={{ x: [0, 30, 0], y: [0, -30, 0] }}
             transition={{ duration: 8, repeat: Infinity }}
           />
           <motion.div
-            className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-full blur-3xl"
+            className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-500/40 to-transparent rounded-full blur-3xl"
             animate={{ x: [0, -30, 0], y: [0, 30, 0] }}
             transition={{ duration: 10, repeat: Infinity }}
           />

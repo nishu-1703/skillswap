@@ -30,7 +30,7 @@ export default function BrowseSkills() {
   };
 
   return (
-    <section id="browse" className="py-24 bg-gradient-to-b from-white to-indigo-50 relative overflow-hidden">
+    <section id="browse" className="py-24 bg-gradient-to-b from-teal-900 via-cyan-900 to-teal-900 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-200 rounded-full blur-3xl opacity-10" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-200 rounded-full blur-3xl opacity-10" />
@@ -42,9 +42,9 @@ export default function BrowseSkills() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-cyan-600 to-indigo-600 bg-clip-text text-transparent mb-4">Browse Popular Skills</h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-cyan-600 to-indigo-600 mx-auto mb-6 rounded-full" />
-          <p className="text-lg text-dark-600 max-w-2xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-cyan-300 to-teal-300 bg-clip-text text-transparent mb-4">Browse Popular Skills</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-300 to-teal-300 mx-auto mb-6 rounded-full" />
+          <p className="text-lg text-cyan-100 max-w-2xl mx-auto">
             Explore thousands of skills in diverse categories
           </p>
         </motion.div>
@@ -65,15 +65,15 @@ export default function BrowseSkills() {
                 variants={cardVariants}
                 whileHover={{ y: -8 }}
               >
-                <div className="bg-gradient-to-br from-white to-indigo-50 p-8 rounded-2xl border-2 border-indigo-100 hover:border-indigo-400 transition h-full flex flex-col items-center justify-center text-center group-hover:shadow-2xl shadow-lg">
+                <div className="bg-gradient-to-br from-cyan-700 to-teal-700 p-8 rounded-2xl border-2 border-cyan-600 hover:border-cyan-300 transition h-full flex flex-col items-center justify-center text-center group-hover:shadow-2xl shadow-lg group-hover:shadow-cyan-500/40">
                   <motion.div
                     className="mb-4"
                     whileHover={{ rotate: 20, scale: 1.3 }}
                   >
-                    <Icon className="text-indigo-600" size={40} />
+                    <Icon className="text-cyan-200" size={40} />
                   </motion.div>
-                  <h3 className="font-bold text-dark-900 mb-2 text-lg">{category.name}</h3>
-                  <p className="text-sm text-dark-600 font-medium">{category.count} skills</p>
+                  <h3 className="font-bold text-white mb-2 text-lg">{category.name}</h3>
+                  <p className="text-sm text-cyan-200 font-medium">{category.count} skills</p>
                 </div>
               </motion.div>
             );

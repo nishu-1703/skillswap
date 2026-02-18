@@ -43,7 +43,7 @@ export default function HowItWorks() {
   };
 
   return (
-    <section id="how-it-works" className="py-24 bg-gradient-to-b from-white to-blue-50 relative overflow-hidden">
+    <section id="how-it-works" className="py-24 bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-10" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-200 rounded-full blur-3xl opacity-10" />
@@ -55,9 +55,9 @@ export default function HowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">How SkillSwap Works</h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-6 rounded-full" />
-          <p className="text-lg text-dark-600 max-w-2xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4">How SkillSwap Works</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 mx-auto mb-6 rounded-full" />
+          <p className="text-lg text-blue-100 max-w-2xl mx-auto">
             A simple 3-step process to exchange skills and grow together
           </p>
         </motion.div>
