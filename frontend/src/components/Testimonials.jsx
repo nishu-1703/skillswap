@@ -54,15 +54,20 @@ export default function Testimonials() {
   };
 
   return (
-    <section className="py-20 bg-dark-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 bg-gradient-to-b from-emerald-50 to-white relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-300 rounded-full blur-3xl opacity-10" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-300 rounded-full blur-3xl opacity-10" />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-dark-900 mb-4">What Our Community Says</h2>
+          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-4">What Our Community Says</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 mx-auto mb-6 rounded-full" />
           <p className="text-lg text-dark-600 max-w-2xl mx-auto">
             Join thousands of happy learners from Hyderabad and beyond
           </p>
@@ -78,9 +83,9 @@ export default function Testimonials() {
           {testimonials.map((testimonial, idx) => (
             <motion.div
               key={idx}
-              className="bg-white p-6 rounded-xl border border-dark-200 hover:border-blue-400 transition"
+              className="bg-white p-8 rounded-2xl border-2 border-emerald-100 hover:border-emerald-400 transition shadow-lg"
               variants={cardVariants}
-              whileHover={{ y: -8 }}
+              whileHover={{ y: -12, boxShadow: '0 20px 60px rgba(16, 185, 129, 0.15)' }}
             >
               {/* Rating */}
               <div className="flex gap-1 mb-4">

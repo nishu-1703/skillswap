@@ -33,15 +33,20 @@ export default function FAQ() {
   ];
 
   return (
-    <section id="faq" className="py-20 bg-white">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="faq" className="py-24 bg-gradient-to-b from-white to-orange-50 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-orange-300 rounded-full blur-3xl opacity-10" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-yellow-300 rounded-full blur-3xl opacity-10" />
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-dark-900 mb-4">Frequently Asked Questions</h2>
+          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent mb-4">Frequently Asked Questions</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-orange-600 to-yellow-600 mx-auto mb-6 rounded-full" />
           <p className="text-lg text-dark-600">
             Everything you need to know about SkillSwap
           </p>
@@ -56,20 +61,20 @@ export default function FAQ() {
           {faqs.map((faq, idx) => (
             <motion.div
               key={idx}
-              className="border border-dark-200 rounded-lg overflow-hidden"
+              className="border-2 border-dark-200 rounded-xl overflow-hidden hover:border-orange-400 transition"
               initial={false}
               animate={{ opacity: 1 }}
             >
               <button
                 onClick={() => setOpenIndex(openIndex === idx ? -1 : idx)}
-                className="w-full px-6 py-4 flex items-center justify-between bg-dark-50 hover:bg-dark-100 transition"
+                className="w-full px-6 py-5 flex items-center justify-between bg-orange-50 hover:bg-orange-100 transition"
               >
-                <span className="font-semibold text-dark-900 text-left">{faq.question}</span>
+                <span className="font-semibold text-dark-900 text-left text-lg">{faq.question}</span>
                 <motion.div
                   animate={{ rotate: openIndex === idx ? 180 : 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <ChevronDown size={20} className="text-dark-600" />
+                  <ChevronDown size={20} className="text-orange-600" />
                 </motion.div>
               </button>
 
@@ -82,7 +87,7 @@ export default function FAQ() {
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 py-4 bg-white border-t border-dark-200 text-dark-700">
+                    <div className="px-6 py-4 bg-white border-t-2 border-dark-200 text-dark-700 leading-relaxed">
                       {faq.answer}
                     </div>
                   </motion.div>
@@ -93,16 +98,20 @@ export default function FAQ() {
         </motion.div>
 
         <motion.div
-          className="mt-12 p-6 bg-blue-50 border border-blue-200 rounded-lg text-center"
+          className="mt-16 p-8 bg-gradient-to-r from-orange-100 to-yellow-100 border-2 border-orange-300 rounded-2xl text-center shadow-lg"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <p className="text-dark-900 font-semibold mb-2">Still have questions?</p>
-          <p className="text-dark-700 mb-4">Reach out to our support team at support@skillswap.com</p>
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          <p className="text-dark-900 font-bold text-lg mb-2">Still have questions?</p>
+          <p className="text-dark-700 mb-6">Reach out to our support team at support@skillswap.com</p>
+          <motion.button 
+            className="px-8 py-3 bg-gradient-to-r from-orange-600 to-yellow-600 text-white rounded-lg hover:shadow-lg transition font-bold"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             Contact Support
-          </button>
+          </motion.button>
         </motion.div>
       </div>
     </section>

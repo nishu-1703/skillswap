@@ -27,7 +27,7 @@ export default function StatsBar() {
 
   return (
     <motion.div
-      className="bg-gradient-to-r from-blue-50 to-purple-50 py-8 border-b border-dark-200"
+      className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 py-12 border-b border-blue-500/30 shadow-xl"
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
@@ -47,10 +47,10 @@ export default function StatsBar() {
                   className="flex items-center justify-center gap-3"
                   whileHover={{ scale: 1.05 }}
                 >
-                  <Icon className="text-blue-600" size={20} />
+                  <Icon className="text-white" size={20} />
                   <div>
-                    <p className="text-sm text-dark-600">{stat.label}</p>
-                    <p className="text-lg sm:text-xl font-bold text-dark-900">{stat.value}</p>
+                    <p className="text-sm text-blue-100">{stat.label}</p>
+                    <p className="text-lg sm:text-xl font-bold text-white">{stat.value}</p>
                   </div>
                 </motion.div>
               </motion.div>

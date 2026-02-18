@@ -43,15 +43,20 @@ export default function HowItWorks() {
   };
 
   return (
-    <section id="how-it-works" className="py-20 bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="how-it-works" className="py-24 bg-gradient-to-b from-white to-blue-50 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-10" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-200 rounded-full blur-3xl opacity-10" />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-dark-900 mb-4">How SkillSwap Works</h2>
+          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">How SkillSwap Works</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-6 rounded-full" />
           <p className="text-lg text-dark-600 max-w-2xl mx-auto">
             A simple 3-step process to exchange skills and grow together
           </p>
@@ -73,30 +78,33 @@ export default function HowItWorks() {
               return (
                 <motion.div
                   key={idx}
-                  className="text-center"
+                  className="text-center relative"
                   variants={stepVariants}
                 >
+                  {/* Step number badge */}
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-10 h-10 bg-white border-2 border-dark-200 rounded-full flex items-center justify-center font-bold text-dark-900 shadow-lg">
+                    {idx + 1}
+                  </div>
+
                   {/* Step number circle */}
                   <motion.div
-                    className={`w-20 h-20 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center mx-auto mb-6 cursor-pointer`}
-                    whileHover={{ scale: 1.1 }}
+                    className={`w-24 h-24 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center mx-auto mb-6 cursor-pointer shadow-lg`}
+                    whileHover={{ scale: 1.15 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Icon className="text-white" size={40} />
+                    <Icon className="text-white" size={48} />
                   </motion.div>
 
-                  <h3 className="text-xl font-bold text-dark-900 mb-2">{step.title}</h3>
-                  <p className="text-dark-600 mb-4">{step.description}</p>
+                  <h3 className="text-2xl font-bold text-dark-900 mb-3">{step.title}</h3>
+                  <p className="text-dark-600 mb-6 min-h-12">{step.description}</p>
 
                   {/* Credit animation */}
                   <motion.div
-                    className="inline-block px-4 py-2 bg-dark-100 rounded-full"
+                    className={`inline-block px-6 py-3 rounded-full font-bold text-white shadow-md ${step.credits.startsWith('-') ? 'bg-red-500' : 'bg-green-500'}`}
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <span className={`font-bold ${step.credits.startsWith('-') ? 'text-red-600' : 'text-green-600'}`}>
-                      {step.credits}
-                    </span>
+                    {step.credits}
                   </motion.div>
                 </motion.div>
               );
