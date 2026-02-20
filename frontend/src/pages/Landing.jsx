@@ -36,14 +36,6 @@ export default function Landing() {
       <main className="min-h-screen flex flex-col bg-black overflow-x-hidden relative">
         {/* ===== BACKGROUND DESIGN: 3 LAYERS ===== */}
         
-        {/* Layer 1: Base color with slight gradient */}
-        <div className="fixed inset-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(180deg, #0B0F1A 0%, #0a0015 50%, #0B0F1A 100%)',
-            zIndex: 0,
-          }}
-        />
-
         {/* Layer 2: Radial gradient glow spots */}
         <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1 }}>
           {/* Top right - purple glow */}
@@ -76,15 +68,6 @@ export default function Landing() {
             transition={{ duration: 12, repeat: Infinity, delay: 2 }}
           />
         </div>
-
-        {/* Layer 3: Subtle noise texture overlay */}
-        <div className="fixed inset-0 pointer-events-none opacity-5"
-          style={{
-            backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" seed="2" /%3E%3C/filter%3E%3Crect width="400" height="400" filter="url(%23noiseFilter)" /%3E%3C/svg%3E")',
-            backgroundSize: '400px 400px',
-            zIndex: 2,
-          }}
-        />
 
         {/* ===== CONTENT CONTAINER ===== */}
         <div className="relative z-10">
