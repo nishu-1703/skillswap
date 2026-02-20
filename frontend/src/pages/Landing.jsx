@@ -14,69 +14,83 @@ export default function Landing() {
   };
 
   const features = [
-    { icon: Code, title: 'Skill Exchange', description: 'Exchange skills directly' },
-    { icon: Zap, title: 'Credit System', description: 'Earn and spend credits' },
-    { icon: User, title: 'User Profiles', description: 'Show your expertise' },
-    { icon: Shield, title: 'Secure Auth', description: 'Safe and reliable system' },
+    { icon: ArrowRight, title: 'Skill Exchange', description: 'Exchange your skills with students worldwide' },
+    { icon: Zap, title: 'Credit System', description: 'Earn credits by teaching, spend them to learn' },
+    { icon: User, title: 'User Profiles', description: 'Build and showcase your unique skill profile' },
+    { icon: Shield, title: 'Secure Platform', description: 'Decentralized, secure, and reliable system' },
   ];
 
-  const exampleSkills = [
-    { name: 'Web Development', credits: 20, learners: 234 },
-    { name: 'Graphic Design', credits: 15, learners: 189 },
-    { name: 'Python Programming', credits: 18, learners: 412 },
+  const skillsPreview = [
+    { name: 'Web Development', credits: 20, icon: Code },
+    { name: 'Python Programming', credits: 15, icon: Code },
+    { name: 'UI Design', credits: 10, icon: Award },
   ];
 
-  // Container animations
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
+  const dashboardSkills = [
+    { name: 'Web Development', type: 'Floating', friends: 20 },
+    { name: 'Graphic Design', type: 'Floating', friends: 15 },
+  ];
 
   return (
     <>
-      <main className="min-h-screen flex flex-col bg-black overflow-x-hidden">
-        {/* ========== SECTION 1: HERO WITH VISUAL CENTERPIECE ========== */}
+      <main className="min-h-screen flex flex-col bg-black overflow-x-hidden relative">
+        {/* Background sparkles/particles effect */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          {[...Array(50)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-purple-400 rounded-full"
+              initial={{ 
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                opacity: Math.random() * 0.5
+              }}
+              animate={{
+                opacity: [Math.random() * 0.5, Math.random() * 0.8, Math.random() * 0.5],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 4,
+                repeat: Infinity,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* ========== SECTION 1: HERO WITH VISUAL DASHBOARD ========== */}
         <section
-          className="relative min-h-screen flex items-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden bg-gradient-to-br from-slate-950 via-purple-950 to-black"
+          className="relative min-h-screen flex items-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #0a0015 0%, #1a0033 25%, #0f001a 50%, #1a0a33 75%, #0a0015 100%)',
+          }}
           role="region"
           aria-label="Hero section"
         >
-          {/* Background orbs - large, subtle */}
+          {/* Large glowing orbs - much more vibrant */}
           <motion.div
-            className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-purple-600/30 to-blue-600/20 rounded-full blur-3xl pointer-events-none"
+            className="absolute top-10 right-20 w-96 h-96 rounded-full blur-3xl pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, rgba(168,85,247,0.4) 0%, rgba(168,85,247,0.1) 70%, transparent 100%)',
+            }}
             animate={{ y: [0, 50, 0], x: [0, 30, 0] }}
             transition={{ duration: 20, repeat: Infinity }}
           />
           <motion.div
-            className="absolute bottom-0 -left-32 w-[400px] h-[400px] bg-gradient-to-tr from-indigo-600/20 to-purple-600/30 rounded-full blur-3xl pointer-events-none"
+            className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full blur-3xl pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, rgba(236,72,153,0.3) 0%, rgba(236,72,153,0.1) 70%, transparent 100%)',
+            }}
             animate={{ y: [0, -40, 0], x: [0, -30, 0] }}
             transition={{ duration: 22, repeat: Infinity }}
           />
 
           {/* Hero Grid: Text Left + Visual Right */}
-          <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* LEFT: TEXT CONTENT */}
             <motion.div
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              {/* Subtitle badge */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 backdrop-blur-sm mb-8"
-              >
-                <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
-                <span className="text-sm font-medium text-purple-200">The future of learning</span>
-              </motion.div>
-
               {/* Main heading */}
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
@@ -84,11 +98,9 @@ export default function Landing() {
                 transition={{ delay: 0.2, duration: 0.8 }}
                 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-tight"
               >
-                Exchange Skills.
+                Learn & Teach Skills
                 <br />
-                <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  Build Your Future.
-                </span>
+                Without Money
               </motion.h1>
 
               {/* Description */}
@@ -96,9 +108,9 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
-                className="text-lg text-gray-300 mb-8 max-w-xl leading-relaxed"
+                className="text-lg text-gray-300 mb-8 max-w-2xl leading-relaxed"
               >
-                A decentralized platform where students teach, learn, and earn credits. No money needed — just knowledge and passion.
+                Exchange knowledge using credits. Grow your skills together.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -110,13 +122,13 @@ export default function Landing() {
               >
                 <button
                   onClick={() => navigate('/signup')}
-                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-lg shadow-lg shadow-purple-500/50 hover:shadow-purple-500/80 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+                  className="px-8 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-lg shadow-lg shadow-red-500/50 hover:shadow-red-500/80 hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
                 >
                   Get Started <ArrowRight size={18} />
                 </button>
                 <button
                   onClick={() => scrollToSection('product-preview')}
-                  className="px-8 py-4 bg-white/10 border-2 border-white/20 text-white font-bold rounded-lg hover:bg-white/20 hover:border-white/40 transition-all duration-300"
+                  className="px-8 py-4 bg-transparent border-2 border-white/30 text-white font-bold rounded-lg hover:border-white/50 hover:bg-white/10 transition-all duration-300"
                 >
                   Explore Skills
                 </button>
@@ -130,16 +142,33 @@ export default function Landing() {
               transition={{ delay: 0.3, duration: 0.9 }}
               className="relative h-96 hidden lg:flex items-center justify-center"
             >
-              {/* Glow background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-2xl blur-2xl" />
+              {/* Glow background - strong neon effect */}
+              <motion.div
+                className="absolute inset-0 rounded-2xl blur-2xl pointer-events-none"
+                style={{
+                  background: 'radial-gradient(ellipse at center, rgba(168,85,247,0.3) 0%, rgba(236,72,153,0.2) 50%, transparent 100%)',
+                }}
+                animate={{ opacity: [0.5, 0.8, 0.5] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
 
-              {/* Dashboard card with glass effect */}
-              <div className="relative w-full h-full rounded-2xl overflow-hidden backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl p-6">
-                {/* Top bar */}
-                <div className="flex gap-2 mb-6">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
+              {/* Dashboard card with neon glow border */}
+              <div className="relative w-full h-full rounded-2xl overflow-hidden backdrop-blur-xl bg-gradient-to-br from-purple-900/40 to-black/60 border-2 p-6 shadow-2xl"
+                style={{
+                  borderImage: 'linear-gradient(135deg, #0099ff 0%, #a855f7 50%, #ec489b 100%) 1',
+                  boxShadow: '0 0 30px rgba(168,85,247,0.4), 0 0 60px rgba(236,72,153,0.2), inset 0 0 30px rgba(168,85,247,0.1)',
+                }}
+              >
+                {/* Top header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className="text-purple-400 font-bold">☰</div>
+                    <span className="text-white font-bold">SkillSwap</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-2 h-2 rounded-full bg-purple-400" />
+                    <div className="w-2 h-2 rounded-full bg-purple-400" />
+                  </div>
                 </div>
 
                 {/* Content */}
@@ -150,39 +179,40 @@ export default function Landing() {
                   className="space-y-4"
                 >
                   {/* Your Credits */}
-                  <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 rounded-lg p-4 border border-purple-500/20">
-                    <p className="text-sm text-gray-400 mb-1">Your Credits</p>
-                    <p className="text-3xl font-bold text-white">120</p>
+                  <div className="bg-gradient-to-br from-purple-900/60 to-blue-900/40 rounded-lg p-4 border border-purple-500/40">
+                    <p className="text-xs text-gray-400 mb-1">Credits Balance</p>
+                    <p className="text-3xl font-bold text-white">120 <span className="text-lg">Credits</span></p>
                   </div>
 
-                  {/* Skills Preview */}
+                  {/* Skills with request buttons */}
                   <div className="space-y-3">
-                    {exampleSkills.map((skill, i) => (
+                    {dashboardSkills.map((skill, i) => (
                       <motion.div
                         key={i}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.7 + i * 0.1 }}
-                        className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg p-3 border border-purple-500/30 hover:border-purple-500/50 transition-colors"
+                        className="bg-gradient-to-r from-purple-900/30 to-transparent rounded-lg p-3 border border-purple-500/40 flex items-center justify-between"
                       >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-semibold text-white">{skill.name}</p>
-                            <p className="text-xs text-gray-400">{skill.learners} learners</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-bold text-purple-300">{skill.credits} credits</p>
-                          </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white">{skill.name}</p>
+                          <p className="text-xs text-gray-400">{skill.type} | Friends: {skill.friends}</p>
                         </div>
+                        <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded transition-colors">
+                          Request Skill
+                        </button>
                       </motion.div>
                     ))}
                   </div>
                 </motion.div>
               </div>
 
-              {/* Floating accent spheres */}
+              {/* Floating glow elements */}
               <motion.div
-                className="absolute -top-20 -right-20 w-40 h-40 bg-purple-600/20 rounded-full blur-2xl pointer-events-none"
+                className="absolute top-10 right-10 w-32 h-32 rounded-full blur-2xl pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, rgba(168,85,247,0.4) 0%, transparent 70%)',
+                }}
                 animate={{ y: [0, 20, 0] }}
                 transition={{ duration: 6, repeat: Infinity }}
               />
@@ -193,10 +223,16 @@ export default function Landing() {
         {/* ========== SECTION 2: PRODUCT PREVIEW ========== */}
         <section
           id="product-preview"
-          className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-slate-950 relative overflow-hidden"
+          className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, #0a0015 0%, #1a0a33 50%, #0a0015 100%)',
+          }}
         >
           <motion.div
-            className="absolute -right-40 top-20 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"
+            className="absolute -right-40 top-20 w-80 h-80 rounded-full blur-3xl pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, rgba(236,72,153,0.2) 0%, transparent 70%)',
+            }}
             animate={{ opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 8, repeat: Infinity }}
           />
@@ -212,62 +248,87 @@ export default function Landing() {
               <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
                 See SkillSwap in Action
               </h2>
-              <p className="text-lg text-gray-400">
-                Real students, real skills, real growth
-              </p>
             </motion.div>
 
-            {/* Live Skills Grid */}
+            {/* Skill cards with neon glow */}
             <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
+              className="grid grid-cols-1 md:grid-cols-3 gap-8"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ staggerChildren: 0.1, delayChildren: 0.2 }}
               viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6"
             >
-              {exampleSkills.map((skill, idx) => (
-                <motion.div
-                  key={idx}
-                  variants={itemVariants}
-                  className="group relative"
-                >
-                  {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              {skillsPreview.map((skill, idx) => {
+                const Icon = skill.icon;
+                const colors = [
+                  { from: '#0099ff', to: '#ec489b' },
+                  { from: '#a855f7', to: '#0099ff' },
+                  { from: '#ec489b', to: '#a855f7' },
+                ];
+                const color = colors[idx];
 
-                  {/* Card */}
-                  <div className="relative rounded-xl backdrop-blur-xl bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-500/30 group-hover:border-purple-500/60 p-6 transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-white">{skill.name}</h3>
-                        <p className="text-sm text-gray-400 mt-1">{skill.learners} active learners</p>
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    viewport={{ once: true }}
+                    className="group relative"
+                  >
+                    {/* Border glow effect */}
+                    <motion.div
+                      className="absolute inset-0 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"
+                      style={{
+                        background: `linear-gradient(135deg, ${color.from}, ${color.to})`,
+                      }}
+                      animate={{ opacity: [0.5, 0.8, 0.5] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    />
+
+                    {/* Card */}
+                    <div className="relative rounded-xl backdrop-blur-xl bg-gradient-to-br from-black/80 to-purple-900/20 border border-white/10 p-6 transition-all duration-300"
+                      style={{
+                        boxShadow: `0 0 20px ${color.from}60, 0 0 40px ${color.to}40`,
+                      }}
+                    >
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600/40 to-blue-600/40">
+                          <Icon className="text-purple-300" size={24} />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-white">{skill.name}</h3>
+                        </div>
                       </div>
-                      <Award className="text-purple-400 group-hover:scale-110 transition-transform" size={24} />
-                    </div>
 
-                    {/* Credit badge */}
-                    <div className="inline-block px-3 py-1 rounded-full bg-purple-600/40 border border-purple-500/50 mb-4">
-                      <p className="text-sm font-bold text-purple-200">{skill.credits} credits</p>
-                    </div>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-sm text-gray-400">Credits: <span className="text-purple-300 font-bold">{skill.credits}</span></span>
+                      </div>
 
-                    {/* Growth indicator */}
-                    <div className="flex items-center gap-2 text-green-400 text-sm font-semibold">
-                      <TrendingUp size={16} />
-                      <span>Growing 12% weekly</span>
+                      <button className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105">
+                        Request Skill
+                      </button>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </motion.div>
           </div>
         </section>
 
-        {/* ========== SECTION 3: FEATURE CARDS WITH DEPTH ========== */}
+        {/* ========== SECTION 3: FEATURES GRID ========== */}
         <section
           id="features"
-          className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden"
+          className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, #0a0015 0%, #15003d 50%, #0a0015 100%)',
+          }}
         >
           <motion.div
-            className="absolute -left-40 -top-40 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"
+            className="absolute -left-40 -top-40 w-96 h-96 rounded-full blur-3xl pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, rgba(168,85,247,0.2) 0%, transparent 70%)',
+            }}
             animate={{ opacity: [0.2, 0.5, 0.2] }}
             transition={{ duration: 10, repeat: Infinity }}
           />
@@ -280,13 +341,21 @@ export default function Landing() {
               viewport={{ once: true }}
               className="text-4xl sm:text-5xl font-bold text-white text-center mb-16"
             >
-              Powerful Features
+              How SkillSwap Works
             </motion.h2>
 
             {/* 2x2 Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {features.map((feature, idx) => {
                 const Icon = feature.icon;
+                const colors = [
+                  { from: '#0099ff', to: '#a855f7' },
+                  { from: '#ec489b', to: '#0099ff' },
+                  { from: '#a855f7', to: '#ec489b' },
+                  { from: '#0099ff', to: '#ec489b' },
+                ];
+                const color = colors[idx];
+
                 return (
                   <motion.div
                     key={idx}
@@ -296,14 +365,26 @@ export default function Landing() {
                     viewport={{ once: true }}
                     className="group relative"
                   >
-                    {/* Glow background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 to-blue-600/20 rounded-2xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    {/* Border glow */}
+                    <motion.div
+                      className="absolute inset-0 rounded-xl blur opacity-60 group-hover:opacity-100 transition-opacity"
+                      style={{
+                        background: `linear-gradient(135deg, ${color.from}, ${color.to})`,
+                      }}
+                      animate={{ opacity: [0.4, 0.7, 0.4] }}
+                      transition={{ duration: 4, repeat: Infinity }}
+                    />
 
-                    {/* Glass card with border glow */}
-                    <div className="relative rounded-2xl backdrop-blur-xl bg-gradient-to-br from-white/5 to-white/0 border border-purple-500/30 group-hover:border-purple-500/60 p-8 transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-3 group-hover:shadow-2xl shadow-lg shadow-purple-900/20">
-                      {/* Icon container */}
-                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600/40 to-blue-600/40 border border-purple-500/50 mb-6 group-hover:scale-125 transition-transform">
-                        <Icon className="text-purple-300" size={24} />
+                    {/* Card */}
+                    <div className="relative rounded-xl backdrop-blur-xl bg-gradient-to-br from-black/80 to-purple-900/20 border border-white/10 p-8 transition-all duration-300"
+                      style={{
+                        boxShadow: `0 0 20px ${color.from}50, 0 0 40px ${color.to}30`,
+                      }}
+                    >
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600/40 to-blue-600/40">
+                          <Icon className="text-purple-300" size={28} />
+                        </div>
                       </div>
 
                       <h3 className="text-2xl font-bold text-white mb-3">
@@ -312,9 +393,6 @@ export default function Landing() {
                       <p className="text-gray-400 leading-relaxed">
                         {feature.description}
                       </p>
-
-                      {/* Hover accent */}
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-purple-600/20 to-transparent rounded-bl-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
                   </motion.div>
                 );
@@ -326,17 +404,23 @@ export default function Landing() {
         {/* ========== SECTION 4: PLATFORM PREVIEW ========== */}
         <section
           id="platform"
-          className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black via-purple-950/30 to-black relative overflow-hidden"
+          className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, #0a0015 0%, #1a0a33 100%)',
+          }}
         >
           <motion.div
-            className="absolute inset-0 bg-gradient-to-t from-purple-600/5 via-transparent to-transparent pointer-events-none"
-            animate={{ opacity: [0.3, 0.7, 0.3] }}
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse at 30% 50%, rgba(236,72,153,0.1) 0%, transparent 50%)',
+            }}
+            animate={{ opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 12, repeat: Infinity }}
           />
 
           <div className="relative z-10 max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              {/* Left: Visual */}
+              {/* Left: Dashboard Mock */}
               <motion.div
                 initial={{ opacity: 0, x: -40 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -344,53 +428,78 @@ export default function Landing() {
                 viewport={{ once: true }}
                 className="relative h-96 hidden lg:flex items-center"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 to-blue-600/20 rounded-2xl blur-2xl" />
-                <div className="relative w-full h-full rounded-2xl overflow-hidden backdrop-blur-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10 shadow-2xl flex flex-col p-6">
-                  <div className="text-center flex-1 flex items-center justify-center">
-                    <div className="space-y-4">
-                      <motion.div
-                        animate={{ scale: [1, 1.05, 1] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                        className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 mx-auto shadow-lg shadow-purple-500/50"
-                      />
-                      <p className="text-white font-semibold">Dashboard Preview</p>
+                <div className="absolute inset-0 rounded-2xl blur-2xl pointer-events-none"
+                  style={{
+                    background: 'radial-gradient(ellipse, rgba(168,85,247,0.2) 0%, transparent 70%)',
+                  }}
+                />
+                <div className="relative w-full h-full rounded-2xl overflow-hidden backdrop-blur-xl bg-gradient-to-br from-purple-900/40 to-black/60 border-2 p-6"
+                  style={{
+                    borderImage: 'linear-gradient(135deg, #0099ff 0%, #a855f7 100%) 1',
+                    boxShadow: '0 0 30px rgba(168,85,247,0.3), 0 0 60px rgba(236,72,153,0.15)',
+                  }}
+                >
+                  <div className="text-center flex-1 flex flex-col items-center justify-center">
+                    <div className="space-y-4 w-full px-4">
+                      <div className="text-xs text-gray-400 flex justify-between mb-3">
+                        <span>☰</span>
+                        <span>SkillSwap</span>
+                        <span>⋯</span>
+                      </div>
+
+                      <div className="bg-purple-900/40 rounded-lg p-3 border border-purple-500/30">
+                        <p className="text-xs text-gray-400">Credits Balance</p>
+                        <p className="text-2xl font-bold text-white">120 Credits</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="bg-gradient-to-r from-purple-900/20 to-transparent rounded p-2 border border-purple-500/20 text-left">
+                          <p className="text-xs font-semibold text-white">Web Development</p>
+                          <p className="text-xs text-gray-400">Floating | Friends: 20</p>
+                        </div>
+                        <div className="bg-gradient-to-r from-purple-900/20 to-transparent rounded p-2 border border-purple-500/20 text-left">
+                          <p className="text-xs font-semibold text-white">Graphic Design</p>
+                          <p className="text-xs text-gray-400">Floating | Friends: 15</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </motion.div>
 
-              {/* Right: Text Benefits */}
+              {/* Right: Benefits */}
               <motion.div
                 initial={{ opacity: 0, x: 40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-4xl sm:text-5xl font-bold text-white mb-8">
-                  Manage Your Skills Effortlessly
+                <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+                  Manage your skills
                 </h2>
+                <p className="text-lg text-gray-400 mb-8">
+                  <span className="text-purple-300">effortlessly</span>
+                </p>
+                <p className="text-gray-400 mb-8">
+                  Join the future of Skill exchange
+                </p>
 
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {[
-                    { title: 'Track Credits', desc: 'Monitor earnings and spending in real-time' },
-                    { title: 'Browse Skills', desc: 'Discover thousands of learners and experts' },
-                    { title: 'Exchange Knowledge', desc: 'Seamless peer-to-peer skill sharing' },
+                    'Track credits',
+                    'Browse skills',
+                    'Exchange knowledge easily',
                   ].map((item, idx) => (
                     <motion.div
                       key={idx}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.1, duration: 0.6 }}
                       viewport={{ once: true }}
-                      className="flex gap-4"
+                      className="flex items-center gap-3"
                     >
-                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 flex-shrink-0 mt-1">
-                        <Check className="text-white" size={20} />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-white mb-1">{item.title}</h3>
-                        <p className="text-gray-400">{item.desc}</p>
-                      </div>
+                      <Check className="text-green-400 flex-shrink-0" size={20} />
+                      <span className="text-white font-medium">{item}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -399,58 +508,12 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ========== SECTION 5: STRONG CTA ========== */}
-        <section
-          id="cta"
-          className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black via-purple-900/40 to-black relative overflow-hidden"
-        >
-          <motion.div
-            className="absolute inset-0 bg-radial-gradient from-purple-600/20 via-transparent to-transparent pointer-events-none"
-            animate={{ opacity: [0.3, 0.8, 0.3] }}
-            transition={{ duration: 10, repeat: Infinity }}
-          />
-
-          <div className="relative z-10 max-w-3xl mx-auto text-center">
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="text-5xl sm:text-6xl font-extrabold text-white mb-6"
-            >
-              Join the Future of Learning
-            </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.8 }}
-              viewport={{ once: true }}
-              className="text-xl text-gray-300 mb-8"
-            >
-              Start exchanging skills today. No payment required.
-            </motion.p>
-
-            <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              viewport={{ once: true }}
-              onClick={() => navigate('/signup')}
-              className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-lg rounded-lg shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/80 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-110"
-            >
-              Create Free Account <ArrowRight size={22} />
-            </motion.button>
-          </div>
-        </section>
-
-        {/* ========== SECTION 6: PREMIUM FOOTER ========== */}
-        <footer className="py-12 px-4 sm:px-6 lg:px-8 bg-black/80 border-t border-white/5 backdrop-blur-xl">
+        {/* ========== SECTION 5: FOOTER ========== */}
+        <footer className="py-12 px-4 sm:px-6 lg:px-8 bg-black/80 border-t border-white/5 backdrop-blur-xl relative z-20">
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-2xl font-bold text-white mb-2">SkillSwap</h3>
-                <p className="text-gray-500 text-sm">© 2026 SkillSwap. All rights reserved.</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-6 sm:justify-end">
                 <button
