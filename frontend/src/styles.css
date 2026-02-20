@@ -751,7 +751,7 @@ main {
   color: #fbbf24;
 }
 
-.stars input:checked ~ .star-display .star:nth-child(-n + VARIABLE) {
+.stars input:checked ~ .star-display .star.filled {
   color: #fbbf24;
 }
 

@@ -47,7 +47,7 @@
 .conversation-item.active {
   background: #eff6ff;
   border-left: 3px solid #3b82f6;
-  pad-left: 9px;
+  padding-left: 9px;
 }
 
 .conv-avatar {

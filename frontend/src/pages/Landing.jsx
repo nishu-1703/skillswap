@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown, Sparkles } from 'lucide-react';
 
 // Import all new components
 import Navbar from '../components/Navbar';
@@ -15,66 +15,7 @@ import FAQ from '../components/FAQ';
 import FinalCTA from '../components/FinalCTA';
 import Footer from '../components/Footer';
 
-// Animated SVG Component for Credit Flow Visualization
-function CreditFlowVisualization() {
-  return (
-    <svg viewBox="0 0 400 500" style={{ width: '100%', height: 'auto', maxWidth: '500px' }} xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="gradientFlow" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#6366F1" stopOpacity="1" />
-          <stop offset="100%" stopColor="#14B8A6" stopOpacity="1" />
-        </linearGradient>
-        <style>{`
-          @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-300px); opacity: 0; }
-          }
-          @keyframes pulse {
-            0%, 100% { r: 8; opacity: 0.8; }
-            50% { r: 12; opacity: 1; }
-          }
-          .credit-particle {
-            animation: floatUp 3s ease-in infinite;
-            fill: url(#gradientFlow);
-          }
-          .credit-particle:nth-child(2) { animation-delay: 0.3s; }
-          .credit-particle:nth-child(3) { animation-delay: 0.6s; }
-          .credit-particle:nth-child(4) { animation-delay: 0.9s; }
-          .credit-particle:nth-child(5) { animation-delay: 1.2s; }
-          .pulse-circle {
-            animation: pulse 1.5s ease-in-out infinite;
-          }
-        `}</style>
-      </defs>
-      
-      {/* Left User - Teacher */}
-      <circle cx="60" cy="150" r="30" fill="#6366F1" opacity="0.1" stroke="#6366F1" strokeWidth="2" />
-      <circle cx="60" cy="150" r="20" fill="#6366F1" />
-      <text x="60" y="160" textAnchor="middle" fill="white" fontSize="28" fontWeight="bold">👨‍🏫</text>
-      
-      {/* Right User - Learner */}
-      <circle cx="340" cy="350" r="30" fill="#14B8A6" opacity="0.1" stroke="#14B8A6" strokeWidth="2" />
-      <circle cx="340" cy="350" r="20" fill="#14B8A6" />
-      <text x="340" y="360" textAnchor="middle" fill="white" fontSize="28" fontWeight="bold">🎓</text>
-      
-      {/* Credit Flow - Animated particles */}
-      <circle cx="100" cy="240" r="8" className="credit-particle pulse-circle" />
-      <circle cx="150" cy="280" r="8" className="credit-particle pulse-circle" />
-      <circle cx="200" cy="300" r="8" className="credit-particle pulse-circle" />
-      <circle cx="250" cy="320" r="8" className="credit-particle pulse-circle" />
-      <circle cx="300" cy="335" r="8" className="credit-particle pulse-circle" />
-      
-      {/* Path showing flow direction */}
-      <path d="M 80 170 Q 200 240 320 330" stroke="url(#gradientFlow)" strokeWidth="2" fill="none" opacity="0.3" strokeDasharray="5,5" />
-      
-      {/* Connection nodes */}
-      <circle cx="80" cy="170" r="6" fill="#6366F1" opacity="0.5" />
-      <circle cx="320" cy="330" r="6" fill="#14B8A6" opacity="0.5" />
-    </svg>
-  )
-}
+
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -92,133 +33,112 @@ export default function Landing() {
       {/* Sticky Navbar */}
       <Navbar />
 
-      <main className="min-h-screen flex flex-col bg-white">
-        {/* Hero Section */}
+      <main className="min-h-screen flex flex-col bg-black overflow-x-hidden">
+        {/* Hero Section - Premium Dark Theme */}
         <section
-          className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900"
+          className="relative min-h-screen flex items-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden bg-black"
           role="region"
           aria-label="Hero section"
         >
-          {/* Animated background gradient orbs */}
+          {/* Background orbs for depth (subtle) */}
           <motion.div
-            className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/40 to-transparent rounded-full blur-3xl"
-            animate={{ x: [0, 30, 0], y: [0, -30, 0] }}
-            transition={{ duration: 8, repeat: Infinity }}
-          />
-          <motion.div
-            className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-500/40 to-transparent rounded-full blur-3xl"
-            animate={{ x: [0, -30, 0], y: [0, 30, 0] }}
+            className="absolute -right-20 top-32 w-80 h-80 bg-gradient-to-br from-purple-700 to-indigo-600 rounded-full blur-3xl opacity-30 pointer-events-none"
+            animate={{ y: [0, 25, 0] }}
             transition={{ duration: 10, repeat: Infinity }}
           />
+          <motion.div
+            className="absolute -left-40 bottom-40 w-96 h-96 bg-gradient-to-br from-pink-600 to-orange-500 rounded-full blur-3xl opacity-20 pointer-events-none"
+            animate={{ y: [0, -20, 0] }}
+            transition={{ duration: 12, repeat: Infinity }}
+          />
 
-          {/* Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 max-w-6xl w-full relative z-10">
-            {/* Left Content */}
+          {/* Cleaner layout: two-column hero */}
+          <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left visual card */}
             <motion.div
-              className="flex flex-col justify-center"
-              initial={{ opacity: 0, x: -50 }}
+              className="lg:col-span-5 flex justify-center lg:justify-start"
+              initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
+              <div className="w-full max-w-md rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-black shadow-2xl p-10">
+                <div className="h-60 rounded-xl bg-gradient-to-br from-purple-600 via-indigo-700 to-black/30 shadow-inner flex items-center justify-center">
+                  <div className="text-left px-6">
+                    <h3 className="text-3xl font-extrabold text-white leading-tight">Your Keys.<br/>Your Chats.<br/>Your Security.</h3>
+                    <p className="mt-4 text-sm text-gray-300 max-w-xs">Premium privacy-focused interactions designed with beautiful, secure UX.</p>
+                  </div>
+                </div>
+                <div className="mt-6 flex gap-3">
+                  <button className="flex-1 px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white font-medium hover:bg-white/5">Learn More</button>
+                  <button onClick={() => navigate('/signup')} className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg text-white font-semibold">Get Started</button>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right content */}
+            <div className="lg:col-span-7 text-center lg:text-left">
+              {/* Badge */}
+              <motion.div
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/6 border border-white/10 backdrop-blur-sm mb-6"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7 }}
+              >
+                <Sparkles size={16} className="text-pink-400" />
+                <span className="text-sm font-medium text-pink-200">Welcome to the skill revolution</span>
+              </motion.div>
+
               <motion.h1
-                className="text-5xl sm:text-6xl font-bold mb-6 text-white leading-tight"
+                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-4 text-white leading-tight"
                 style={{ letterSpacing: '-0.02em' }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                transition={{ duration: 0.8, delay: 0.05 }}
               >
-                Master New Skills by Sharing What You Already Know
+                Learn <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">anything</span> from <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">anyone</span>
               </motion.h1>
 
               <motion.p
-                className="text-xl sm:text-2xl mb-8 text-dark-200 leading-relaxed font-light"
-                initial={{ opacity: 0, y: 20 }}
+                className="text-lg sm:text-xl mb-8 text-gray-300 max-w-2xl"
+                initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
+                transition={{ duration: 0.8, delay: 0.15 }}
               >
-                No money. Just credits. Real people helping each other grow.
+                Exchange skills without friction — connect with real people and grow together. Built with a premium, privacy-first design.
               </motion.p>
 
-              {/* Call-to-Action Buttons */}
               <motion.div
-                className="flex flex-col sm:flex-row gap-4 mb-12"
-                initial={{ opacity: 0, y: 20 }}
+                className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
+                transition={{ duration: 0.8, delay: 0.25 }}
               >
                 {user ? (
-                  <motion.button
+                  <button
                     onClick={() => navigate('/dashboard')}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl hover:shadow-lg hover:shadow-green-500/50 transition-all duration-300"
-                    whileHover={{ scale: 1.05, y: -4 }}
-                    whileTap={{ scale: 0.95 }}
+                    className="inline-flex items-center gap-2 px-6 py-4 text-lg font-semibold text-white bg-gradient-to-r from-indigo-600 to-pink-600 rounded-xl shadow-2xl"
                   >
-                    Go to Dashboard <ArrowRight size={20} />
-                  </motion.button>
+                    Go to Dashboard <ArrowRight size={18} />
+                  </button>
                 ) : (
                   <>
-                    <motion.button
+                    <button
                       onClick={() => navigate('/signup')}
-                      className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-600/50 hover:shadow-xl hover:shadow-blue-600/60 transition-all duration-300"
-                      whileHover={{ scale: 1.05, y: -4 }}
-                      whileTap={{ scale: 0.95 }}
+                      className="inline-flex items-center gap-2 px-6 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl shadow-2xl"
                     >
-                      Join Free <ArrowRight size={20} />
-                    </motion.button>
+                      Get Started Free <ArrowRight size={18} />
+                    </button>
 
-                    <motion.button
+                    <button
                       onClick={scrollToSection}
-                      className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-bold text-white border-2 border-white rounded-xl bg-transparent hover:bg-white/10 transition-all duration-300"
-                      whileHover={{ scale: 1.05, y: -4 }}
-                      whileTap={{ scale: 0.95 }}
+                      className="inline-flex items-center gap-2 px-6 py-4 text-lg font-semibold text-white border-2 border-white/20 rounded-xl bg-white/3 hover:bg-white/6"
                     >
-                      See How It Works <ChevronDown size={20} />
-                    </motion.button>
+                      See How It Works <ChevronDown size={18} />
+                    </button>
                   </>
                 )}
               </motion.div>
-
-              {/* Trust Bar - Social Proof */}
-              <motion.div
-                className="flex items-center gap-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-              >
-                <div className="flex -space-x-2">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center text-lg font-semibold"
-                      style={{
-                        backgroundColor: ['#6366F1', '#14B8A6', '#06b6d4', '#f59e0b', '#ef4444'][i],
-                      }}
-                    >
-                      {['👨', '👩', '🧑', '👨', '👩'][i]}
-                    </div>
-                  ))}
-                </div>
-                <p className="text-dark-200 text-sm font-medium">
-                  Join <span className="text-lg font-bold text-white">12,400+</span> learners & teachers
-                </p>
-              </motion.div>
-            </motion.div>
-
-            {/* Right Side - Visual */}
-            <motion.div
-              className="hidden lg:flex items-center justify-center"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <motion.div
-                className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl"
-                animate={{ y: [0, -20, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
-              >
-                <CreditFlowVisualization />
-              </motion.div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
