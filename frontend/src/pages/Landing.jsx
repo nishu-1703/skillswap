@@ -36,7 +36,7 @@ export default function Landing() {
       <main className="min-h-screen flex flex-col bg-black overflow-x-hidden">
         {/* Hero Section - Premium Dark Theme */}
         <section
-          className="relative min-h-screen flex items-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden bg-black"
+          className="premium-hero relative min-h-screen flex items-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden bg-black"
           role="region"
           aria-label="Hero section"
         >
@@ -53,7 +53,7 @@ export default function Landing() {
           />
 
           {/* Cleaner layout: two-column hero */}
-          <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="hero-grid max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left visual card */}
             <motion.div
               className="lg:col-span-5 flex justify-center lg:justify-start"

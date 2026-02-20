@@ -2277,3 +2277,37 @@ main {
   }
 }
 
+/* Premium hero overrides to ensure consistent dark/styled layout */
+.premium-hero {
+  background: linear-gradient(180deg, rgba(8,10,20,0.8) 0%, rgba(7,9,20,0.95) 60%), radial-gradient(600px 300px at 80% 20%, rgba(99,102,241,0.08), transparent 40%), radial-gradient(500px 300px at 10% 80%, rgba(124,58,237,0.06), transparent 35%);
+  color: #f8fafc;
+}
+.premium-hero .hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+.premium-hero .hero-grid > div:first-child {
+  justify-self: center;
+}
+.premium-hero .hero-grid > div:last-child {
+  justify-self: center;
+  text-align: center;
+}
+@media (min-width: 1024px) {
+  .premium-hero .hero-grid {
+    grid-template-columns: 45% 55%;
+    gap: 4rem;
+  }
+  .premium-hero .hero-grid > div:last-child {
+    text-align: left;
+  }
+}
+
+/* Force dark background site-wide fallback when landing is shown */
+.premium-hero body, .premium-hero ~ * {
+  background-color: inherit;
+}
+
+
