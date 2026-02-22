@@ -1,188 +1,209 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { BadgeCheck, Lock, Mail, Search, UserRound } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import SittingDoodle from '../components/doodles/SittingDoodle.tsx'
+import StrollingDoodle from '../components/doodles/StrollingDoodle.tsx'
+import './AuthPages.css'
+
+const setupCards = [
+  { title: 'Personal Info', icon: UserRound },
+  { title: 'Account Details', icon: Mail },
+  { title: 'Preferences', icon: BadgeCheck },
+]
 
 export default function SignupPage() {
   const { signup, error } = useAuth()
+  const navigate = useNavigate()
+  const nameRef = useRef(null)
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [formError, setFormError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const focusForm = () => {
+    nameRef.current?.focus()
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setFormError('')
+
+    if (password !== confirmPassword) {
+      setFormError('Passwords do not match.')
+      return
+    }
+
+    if (!acceptedTerms) {
+      setFormError('Please accept the Terms and Conditions to continue.')
+      return
+    }
+
     setIsLoading(true)
     try {
       await signup(email, password, name)
+      navigate('/dashboard')
     } finally {
       setIsLoading(false)
     }
   }
 
+  const displayError = formError || error
+
   return (
-    <main style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', 
-      padding: 'var(--spacing-lg)' 
-    }}>
-      <article style={{ 
-        width: '100%', 
-        maxWidth: '420px', 
-        background: 'var(--color-bg-light)', 
-        border: '1px solid var(--color-border)', 
-        borderRadius: 'var(--border-radius-lg)', 
-        padding: 'var(--spacing-3xl)', 
-        boxShadow: 'var(--shadow-lg)' 
-      }}>
-        <header style={{ marginBottom: 'var(--spacing-2xl)' }}>
-          <h1 style={{ 
-            fontSize: 'var(--font-size-2xl)', 
-            fontWeight: 'var(--font-weight-bold)', 
-            color: 'var(--color-text)', 
-            margin: '0 0 var(--spacing-xs) 0' 
-          }}>Join SkillSwap</h1>
-          <p style={{ 
-            color: 'var(--color-text-light)', 
-            margin: '0',
-            fontSize: 'var(--font-size-base)'
-          }}>Start teaching and learning with credits</p>
-        </header>
+    <main className="authx-page authx-page-signup">
+      <div className="authx-shell">
+        <section className="authx-hero">
+          <header className="authx-nav">
+            <button type="button" className="authx-brand" onClick={() => navigate('/')}>
+              SkillSwap
+            </button>
+            <span className="authx-pill">Credits</span>
+            <div className="authx-nav-actions">
+              <button type="button" className="authx-icon-chip" aria-label="Search">
+                <Search size={15} />
+              </button>
+              <button type="button" className="authx-nav-link" onClick={() => navigate('/login')}>
+                Login
+              </button>
+            </div>
+          </header>
 
-        {error && <div 
-          id="error-message"
-          role="alert"
-          aria-live="polite"
-          style={{ 
-            padding: 'var(--spacing-sm)', 
-            background: 'var(--color-error-light)', 
-            border: `2px solid var(--color-error)`, 
-            borderRadius: 'var(--border-radius-md)', 
-            color: 'var(--color-error)', 
-            marginBottom: 'var(--spacing-lg)', 
-            fontSize: 'var(--font-size-sm)' 
-          }}
-        >
-          {error}
-        </div>}
-        
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
-          <div className="form-group">
-            <label htmlFor="fullname" style={{ 
-              fontSize: 'var(--font-size-sm)', 
-              fontWeight: 'var(--font-weight-semibold)', 
-              color: 'var(--color-text)',
-              display: 'block',
-              marginBottom: 'var(--spacing-xs)'
-            }}>Full Name</label>
-            <input
-              id="fullname"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              aria-required="true"
-              aria-describedby={error ? 'error-message' : undefined}
-              style={{
-                width: '100%',
-                padding: 'var(--spacing-sm)',
-                border: '2px solid var(--color-border)',
-                borderRadius: 'var(--border-radius-md)',
-                fontSize: 'var(--font-size-base)',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.2s, outline-offset 0.2s'
-              }}
-              className="form-input"
-            />
+          <div className="authx-hero-body">
+            <div className="authx-figure authx-figure-left" aria-hidden="true">
+              <SittingDoodle accent="#f5a524" ink="#1f2a44" />
+            </div>
+
+            <div className="authx-copy">
+              <h1>Create Your Account</h1>
+              <p>Join the community and start your skill-learning journey today.</p>
+              <button type="button" className="authx-cta" onClick={focusForm}>
+                Sign Up
+              </button>
+            </div>
+
+            <div className="authx-figure authx-figure-right" aria-hidden="true">
+              <StrollingDoodle accent="#ffc15f" ink="#1f2a44" />
+            </div>
           </div>
+        </section>
 
-          <div className="form-group">
-            <label htmlFor="signup-email" style={{ 
-              fontSize: 'var(--font-size-sm)', 
-              fontWeight: 'var(--font-weight-semibold)', 
-              color: 'var(--color-text)',
-              display: 'block',
-              marginBottom: 'var(--spacing-xs)'
-            }}>Email Address</label>
-            <input
-              id="signup-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              aria-required="true"
-              aria-describedby={error ? 'error-message' : undefined}
-              style={{
-                width: '100%',
-                padding: 'var(--spacing-sm)',
-                border: '2px solid var(--color-border)',
-                borderRadius: 'var(--border-radius-md)',
-                fontSize: 'var(--font-size-base)',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.2s, outline-offset 0.2s'
-              }}
-              className="form-input"
-            />
-          </div>
+        <section className="authx-steps" aria-label="Registration steps">
+          {setupCards.map((item, index) => {
+            const Icon = item.icon
+            return (
+              <article key={item.title} className={`authx-step-card authx-step-${index}`}>
+                <div className="authx-step-icon">
+                  <Icon size={18} />
+                </div>
+                <h3>{item.title}</h3>
+              </article>
+            )
+          })}
+        </section>
 
-          <div className="form-group">
-            <label htmlFor="signup-password" style={{ 
-              fontSize: 'var(--font-size-sm)', 
-              fontWeight: 'var(--font-weight-semibold)', 
-              color: 'var(--color-text)',
-              display: 'block',
-              marginBottom: 'var(--spacing-xs)'
-            }}>Password</label>
-            <input
-              id="signup-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              aria-required="true"
-              aria-describedby={error ? 'error-message' : undefined}
-              style={{
-                width: '100%',
-                padding: 'var(--spacing-sm)',
-                border: '2px solid var(--color-border)',
-                borderRadius: 'var(--border-radius-md)',
-                fontSize: 'var(--font-size-base)',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.2s, outline-offset 0.2s'
-              }}
-              className="form-input"
-            />
-          </div>
+        <section className="authx-form-section">
+          <article className="authx-form-card">
+            <header className="authx-form-head">
+              <h2>Sign Up</h2>
+              <p>Create your profile and start learning with credits.</p>
+            </header>
 
-          <button 
-            type="submit" 
-            disabled={isLoading}
-            aria-busy={isLoading}
-            style={{
-              marginTop: 'var(--spacing-sm)'
-            }}
-            className="btn btn-primary btn-lg"
-          >
-            {isLoading ? 'Creating account...' : 'Sign Up'}
-          </button>
-        </form>
+            {displayError ? (
+              <div className="authx-alert" role="alert" aria-live="polite">
+                {displayError}
+              </div>
+            ) : null}
 
-        <aside style={{ 
-          marginTop: 'var(--spacing-2xl)', 
-          padding: 'var(--spacing-lg)', 
-          background: 'var(--color-bg-secondary)', 
-          borderRadius: 'var(--border-radius-md)', 
-          fontSize: 'var(--font-size-sm)', 
-          color: 'var(--color-text-light)', 
-          textAlign: 'center' 
-        }}>
-          <p style={{ margin: '0' }}>✨ New members start with <strong>100 credits</strong></p>
-        </aside>
-      </article>
+            <form className="authx-form" onSubmit={handleSubmit}>
+              <label className="authx-field" htmlFor="signup-name">
+                Full Name
+                <span className="authx-input-wrap">
+                  <UserRound size={16} aria-hidden="true" />
+                  <input
+                    ref={nameRef}
+                    id="signup-name"
+                    type="text"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </span>
+              </label>
+
+              <label className="authx-field" htmlFor="signup-email">
+                Email Address
+                <span className="authx-input-wrap">
+                  <Mail size={16} aria-hidden="true" />
+                  <input
+                    id="signup-email"
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="Enter your email"
+                    required
+                  />
+                </span>
+              </label>
+
+              <label className="authx-field" htmlFor="signup-password">
+                Password
+                <span className="authx-input-wrap">
+                  <Lock size={16} aria-hidden="true" />
+                  <input
+                    id="signup-password"
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Create a password"
+                    required
+                    minLength={6}
+                  />
+                </span>
+              </label>
+
+              <label className="authx-field" htmlFor="signup-confirm-password">
+                Confirm Password
+                <span className="authx-input-wrap">
+                  <Lock size={16} aria-hidden="true" />
+                  <input
+                    id="signup-confirm-password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    placeholder="Confirm your password"
+                    required
+                    minLength={6}
+                  />
+                </span>
+              </label>
+
+              <label className="authx-terms">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(event) => setAcceptedTerms(event.target.checked)}
+                />
+                <span>I agree to the Terms and Conditions</span>
+              </label>
+
+              <button type="submit" className="authx-submit" disabled={isLoading}>
+                {isLoading ? 'Creating account...' : 'Create Account'}
+              </button>
+            </form>
+
+            <p className="authx-switch">
+              Already have an account? <Link to="/login">Login</Link>
+            </p>
+          </article>
+        </section>
+
+        <footer className="authx-legal">&copy; 2026 SkillSwap. All rights reserved.</footer>
+      </div>
     </main>
   )
 }

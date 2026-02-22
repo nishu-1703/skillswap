@@ -94,11 +94,12 @@ function AppContent() {
 
   const isDashboardNew = location.pathname === '/dashboard'
   const isLandingRoute = location.pathname === '/'
-  const hideHeaderOnLanding = isLandingRoute && !user
-  const mainClassName = hideHeaderOnLanding
+  const isAuthRoute = location.pathname === '/login' || location.pathname === '/signup'
+  const hideAppHeader = (isLandingRoute && !user) || (isAuthRoute && !user)
+  const mainClassName = hideAppHeader
     ? 'main-content w-full flex-1 px-0'
     : 'main-content max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1'
-  const mainStyle = hideHeaderOnLanding ? { maxWidth: '100%', margin: 0, padding: 0 } : undefined
+  const mainStyle = hideAppHeader ? { maxWidth: '100%', margin: 0, padding: 0 } : undefined
 
   if (isDashboardNew && user) {
     return <DashboardNew />
@@ -106,7 +107,7 @@ function AppContent() {
 
   return (
     <div className="app min-h-screen flex flex-col bg-dark-900 dark:bg-dark-900 text-dark-100 dark:text-dark-50">
-      {hideHeaderOnLanding ? null : <Header />}
+      {hideAppHeader ? null : <Header />}
       <main className={mainClassName} style={mainStyle}>
         <Routes>
           <Route path="/" element={<Landing />} />
