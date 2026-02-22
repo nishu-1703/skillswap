@@ -13,10 +13,10 @@ import {
   Star,
 } from 'lucide-react';
 import './Landing.css';
-import SittingDoodle from '../components/doodles/SittingDoodle';
-import ReadingDoodle from '../components/doodles/ReadingDoodle';
-import SittingReadingDoodle from '../components/doodles/SittingReadingDoodle';
-import StrollingDoodle from '../components/doodles/StrollingDoodle';
+import SittingDoodle from '../components/doodles/SittingDoodle.tsx';
+import ReadingDoodle from '../components/doodles/ReadingDoodle.tsx';
+import SittingReadingDoodle from '../components/doodles/SittingReadingDoodle.tsx';
+import StrollingDoodle from '../components/doodles/StrollingDoodle.tsx';
 
 const navLinks = [
   { label: 'Home', target: 'top' },
