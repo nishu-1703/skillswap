@@ -1,18 +1,23 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../config'
 
-export default function SkillBrowser() {
+export default function SkillBrowser({ searchQuery = '' }) {
   const { user } = useAuth()
   const [allSkills, setAllSkills] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [selectedSkill, setSelectedSkill] = useState(null)
   const [requesting, setRequesting] = useState(false)
+  const [localSearch, setLocalSearch] = useState(searchQuery || '')
 
   useEffect(() => {
     fetchSkills()
   }, [])
+
+  useEffect(() => {
+    setLocalSearch(searchQuery || '')
+  }, [searchQuery])
 
   const fetchSkills = async () => {
     setLoading(true)
@@ -57,18 +62,43 @@ export default function SkillBrowser() {
     }
   }
 
+  const visibleSkills = useMemo(() => {
+    const normalizedQuery = localSearch.trim().toLowerCase()
+    if (!normalizedQuery) {
+      return allSkills
+    }
+
+    return allSkills.filter((skill) =>
+      [skill.name, skill.teacherName, skill.description]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(normalizedQuery))
+    )
+  }, [allSkills, localSearch])
+
   if (loading) return <div className="loading">Loading skills...</div>
 
   return (
     <section className="skill-browser">
       <h2>Browse & Learn Skills</h2>
       {error && <div className="error-message">{error}</div>}
+      <div className="skill-search-row">
+        <input
+          type="text"
+          value={localSearch}
+          onChange={(event) => setLocalSearch(event.target.value)}
+          placeholder="Search skills or teacher..."
+          className="skill-search-input"
+          aria-label="Search available skills"
+        />
+      </div>
 
       {allSkills.length === 0 ? (
         <p className="empty-state">No other skills available yet. Check back later!</p>
+      ) : visibleSkills.length === 0 ? (
+        <p className="empty-state">No skills match your search.</p>
       ) : (
         <div className="skills-market">
-          {allSkills.map(skill => (
+          {visibleSkills.map(skill => (
             <div key={skill.id} className="skill-item">
               <div className="skill-header">
                 <h3>{skill.name}</h3>

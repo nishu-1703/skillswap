@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   BookOpen,
@@ -172,6 +172,8 @@ export default function DashboardNew() {
   const [activePanel, setActivePanel] = useState('overview')
   const [enrollingSkillId, setEnrollingSkillId] = useState(null)
   const [enrollFeedback, setEnrollFeedback] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const searchInputRef = useRef(null)
 
   useEffect(() => {
     if (!user) {
@@ -300,7 +302,7 @@ export default function DashboardNew() {
       return fallbackCourseCards
     }
 
-    return allSkills.slice(0, 8).map((skill, index) => ({
+    return allSkills.map((skill, index) => ({
       id: skill.id || `${normalizeSkillTitle(skill, index)}-${index}`,
       skillId: skill.id ?? null,
       teacherId: skill.teacherId ?? null,
@@ -322,11 +324,26 @@ export default function DashboardNew() {
     [courseCards]
   )
 
+  const filteredCourseCards = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase()
+    if (!normalizedQuery) {
+      return courseCards.slice(0, 9)
+    }
+
+    return courseCards
+      .filter((course) =>
+        [course.title, course.mentor, course.pace]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(normalizedQuery))
+      )
+      .slice(0, 18)
+  }, [courseCards, searchQuery])
+
   const showWorkspace = activePanel !== 'overview'
 
   const renderWorkspace = () => {
     if (activePanel === 'courses') {
-      return <SkillBrowser />
+      return <SkillBrowser searchQuery={searchQuery} />
     }
 
     if (activePanel === 'sessions') {
@@ -378,6 +395,17 @@ export default function DashboardNew() {
     }
 
     setActivePanel(target)
+  }
+
+  const focusDashboardSearch = () => {
+    const overviewSection = document.getElementById('dashboard-overview')
+    if (overviewSection) {
+      overviewSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+
+    requestAnimationFrame(() => {
+      searchInputRef.current?.focus()
+    })
   }
 
   const handleEnrollClick = async (course) => {
@@ -440,7 +468,12 @@ export default function DashboardNew() {
               Credits
             </button>
             <div className="alt-hero-controls">
-              <button type="button" className="alt-icon-chip" aria-label="Search">
+              <button
+                type="button"
+                className="alt-icon-chip"
+                aria-label="Search skills"
+                onClick={focusDashboardSearch}
+              >
                 <Search size={15} />
               </button>
               <button type="button" className="alt-user-chip" onClick={() => setActivePanel('profile')}>
@@ -491,10 +524,32 @@ export default function DashboardNew() {
         <section className="alt-board" id="dashboard-overview">
           <header className="alt-board-head">
             <h2>Dashboard</h2>
-            <button type="button" className="alt-search-button" aria-label="Find a course">
+            <button
+              type="button"
+              className="alt-search-button"
+              aria-label="Find a course"
+              onClick={focusDashboardSearch}
+            >
               <Search size={16} />
             </button>
           </header>
+
+          <div className="alt-search-inline">
+            <Search size={15} aria-hidden="true" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search skills, mentors, or level..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              aria-label="Search skills"
+            />
+            {searchQuery ? (
+              <button type="button" onClick={() => setSearchQuery('')} aria-label="Clear search">
+                Clear
+              </button>
+            ) : null}
+          </div>
 
           {loading ? <p className="alt-loading-note">Syncing your latest dashboard data...</p> : null}
           {enrollFeedback ? (
@@ -564,7 +619,7 @@ export default function DashboardNew() {
             </aside>
 
             <div className="alt-course-grid" id="dashboard-courses">
-              {courseCards.map((course, index) => {
+              {filteredCourseCards.map((course, index) => {
                 const isEnrolling =
                   course.skillId !== null && enrollingSkillId === String(course.skillId)
 
@@ -592,6 +647,9 @@ export default function DashboardNew() {
                 )
               })}
             </div>
+            {searchQuery.trim() && filteredCourseCards.length === 0 ? (
+              <p className="alt-search-empty">No matching skills found. Try another keyword.</p>
+            ) : null}
           </div>
         </section>
 

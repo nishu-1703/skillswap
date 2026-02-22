@@ -298,6 +298,44 @@
   font-size: 0.8rem;
 }
 
+.alt-search-inline {
+  margin-top: 0.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid #dbe2f2;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #5c6a91;
+  padding: 0.35rem 0.4rem 0.35rem 0.65rem;
+  max-width: 470px;
+}
+
+.alt-search-inline input {
+  border: 0;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+  font-size: 0.78rem;
+  color: #2a3457;
+  background: transparent;
+}
+
+.alt-search-inline input::placeholder {
+  color: #8b95b5;
+}
+
+.alt-search-inline button {
+  border: 1px solid #d4dcef;
+  border-radius: 999px;
+  background: #f7f9ff;
+  color: #46527b;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.22rem 0.6rem;
+  cursor: pointer;
+}
+
 .alt-enroll-feedback {
   margin: 0.42rem 0 0;
   font-size: 0.79rem;
@@ -310,6 +348,12 @@
 
 .alt-enroll-feedback.error {
   color: #c54343;
+}
+
+.alt-search-empty {
+  margin: 0.7rem 0 0;
+  color: #6c789f;
+  font-size: 0.79rem;
 }
 
 .alt-board-grid {
