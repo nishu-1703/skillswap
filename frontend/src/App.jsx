@@ -4,7 +4,6 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { API_BASE_URL } from './config'
 import Landing from './pages/Landing'
-import Dashboard from './pages/Dashboard'
 import DashboardNew from './pages/DashboardNew'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
@@ -15,7 +14,6 @@ import { MessageSquare } from 'lucide-react'
 function Header() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
   const [backendStatus, setBackendStatus] = useState(null)
 
   useEffect(() => {
@@ -118,7 +116,6 @@ function Header() {
 
 function AppContent() {
   const { user, loading } = useAuth()
-  const navigate = useNavigate()
   const location = useLocation()
 
   if (loading) return (
@@ -141,6 +138,14 @@ function AppContent() {
 
   // If on new dashboard, don't show the Header wrapper
   const isDashboardNew = location.pathname === '/dashboard'
+  const isLandingRoute = location.pathname === '/'
+  const hideHeaderOnLanding = isLandingRoute && !user
+  const mainClassName = hideHeaderOnLanding
+    ? 'main-content w-full flex-1 px-0'
+    : 'main-content max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1'
+  const mainStyle = hideHeaderOnLanding
+    ? { maxWidth: '100%', margin: 0, padding: 0 }
+    : undefined
 
   if (isDashboardNew && user) {
     return <DashboardNew />
@@ -148,8 +153,8 @@ function AppContent() {
 
   return (
     <div className="app min-h-screen flex flex-col bg-dark-900 dark:bg-dark-900 text-dark-100 dark:text-dark-50">
-      <Header />
-      <main className="main-content max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1">
+      {hideHeaderOnLanding ? null : <Header />}
+      <main className={mainClassName} style={mainStyle}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={user ? <DashboardNew /> : <LoginPage />} />
