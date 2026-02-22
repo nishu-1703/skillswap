@@ -1,12 +1,101 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  BookOpen,
+  CalendarDays,
+  CircleUserRound,
+  Compass,
+  GraduationCap,
+  Home,
+  MessageCircle,
+  Search,
+  Settings,
+  Star,
+  Trophy,
+  UserRound,
+  Wrench,
+} from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { API_BASE_URL } from '../config'
 import SkillManager from '../components/SkillManager'
 import SkillBrowser from '../components/SkillBrowser'
 import SessionManager from '../components/SessionManager'
-import Messaging from './Messaging'
 import CreditPanel from '../components/CreditPanel'
+import SittingDoodle from '../components/doodles/SittingDoodle.tsx'
+import StrollingDoodle from '../components/doodles/StrollingDoodle.tsx'
+import ReadingDoodle from '../components/doodles/ReadingDoodle.tsx'
+import SittingReadingDoodle from '../components/doodles/SittingReadingDoodle.tsx'
+import './DashboardNew.css'
+
+const featurePillars = [
+  {
+    title: 'Learning',
+    description: 'Track active courses, complete sessions, and grow your daily learning streak.',
+    icon: GraduationCap,
+  },
+  {
+    title: 'Skills',
+    description: 'Teach what you know, learn from peers, and grow your credit balance faster.',
+    icon: Wrench,
+  },
+  {
+    title: 'Community',
+    description: 'Connect with learners, exchange feedback, and collaborate on projects.',
+    icon: MessageCircle,
+  },
+]
+
+const fallbackCourseCards = [
+  { title: 'Web Development', mentor: 'Priya Sharma', pace: 'Beginner', tone: 'tone-cyan' },
+  { title: 'UI/UX Design', mentor: 'Aditi Joshi', pace: 'Intermediate', tone: 'tone-sunset' },
+  { title: 'Marketing', mentor: 'Noah Patel', pace: 'Beginner', tone: 'tone-violet' },
+  { title: 'Python', mentor: 'Rahul Verma', pace: 'Advanced', tone: 'tone-ocean' },
+  { title: 'JavaScript', mentor: 'Emma Wilson', pace: 'Intermediate', tone: 'tone-amber' },
+  { title: 'Data Science', mentor: 'Karan Mehta', pace: 'Advanced', tone: 'tone-teal' },
+  { title: 'Graphic Design', mentor: 'Mia Thomas', pace: 'Beginner', tone: 'tone-pink' },
+  { title: 'Digital Marketing', mentor: 'Liam Scott', pace: 'Intermediate', tone: 'tone-indigo' },
+]
+
+const toneCycle = [
+  'tone-cyan',
+  'tone-sunset',
+  'tone-violet',
+  'tone-ocean',
+  'tone-amber',
+  'tone-teal',
+  'tone-pink',
+  'tone-indigo',
+]
+
+const quickActions = [
+  { key: 'courses', label: 'My Courses', icon: BookOpen },
+  { key: 'messages', label: 'Messages', icon: MessageCircle },
+  { key: 'sessions', label: 'Calendar', icon: CalendarDays },
+  { key: 'skills', label: 'Notes', icon: Settings },
+]
+
+const dockItems = [
+  { key: 'home', target: 'home', label: 'Home', icon: Home },
+  { key: 'dashboard', target: 'overview', label: 'Dashboard', icon: Compass },
+  { key: 'courses', target: 'courses', label: 'Courses', icon: BookOpen },
+  { key: 'community', target: 'messages', label: 'Community', icon: MessageCircle },
+  { key: 'profile', target: 'profile', label: 'Profile', icon: UserRound },
+]
+
+const panelTitles = {
+  courses: 'Explore Courses',
+  sessions: 'Session Calendar',
+  skills: 'Skill Workspace',
+  profile: 'Profile Snapshot',
+}
+
+function getNameInitial(name) {
+  return (name || 'S').trim().charAt(0).toUpperCase()
+}
+
+function normalizeSkillTitle(skill, index) {
+  return skill.name || skill.skillName || skill.title || `Skill ${index + 1}`
+}
 
 export default function DashboardNew() {
   const { user } = useAuth()
@@ -18,596 +107,413 @@ export default function DashboardNew() {
   const [loading, setLoading] = useState(true)
   const [activePanel, setActivePanel] = useState('overview')
 
-  // Fetch data on mount
   useEffect(() => {
-    if (!user) return
-    fetchData()
-  }, [user])
+    if (!user) {
+      return
+    }
 
-  const fetchData = async () => {
-    try {
+    const controller = new AbortController()
+
+    const loadDashboardData = async () => {
       setLoading(true)
       const token = localStorage.getItem('token')
+      const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
 
-      // Fetch user skills
-      const skillRes = await fetch(`${API_BASE_URL}/api/user/${user.id}/skills`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      if (skillRes.ok) {
-        const skillData = await skillRes.json()
-        setSkills(skillData)
-      }
+      try {
+        const [skillsRes, allSkillsRes, sessionsRes, creditsRes] = await Promise.allSettled([
+          fetch(`${API_BASE_URL}/api/user/${user.id}/skills`, {
+            headers: authHeaders,
+            signal: controller.signal,
+          }),
+          fetch(`${API_BASE_URL}/api/skills`, { signal: controller.signal }),
+          fetch(`${API_BASE_URL}/api/sessions`, {
+            headers: authHeaders,
+            signal: controller.signal,
+          }),
+          fetch(`${API_BASE_URL}/api/credits/balance`, {
+            headers: authHeaders,
+            signal: controller.signal,
+          }),
+        ])
 
-      // Fetch all skills
-      const allSkillsRes = await fetch(`${API_BASE_URL}/api/skills`)
-      if (allSkillsRes.ok) {
-        const allSkillsData = await allSkillsRes.json()
-        setAllSkills(allSkillsData)
-      }
+        if (skillsRes.status === 'fulfilled' && skillsRes.value.ok) {
+          const data = await skillsRes.value.json()
+          setSkills(Array.isArray(data) ? data : [])
+        }
 
-      // Fetch user sessions
-      const sessionsRes = await fetch(`${API_BASE_URL}/api/sessions`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      if (sessionsRes.ok) {
-        const sessionsData = await sessionsRes.json()
-        setSessions(sessionsData)
-      }
+        if (allSkillsRes.status === 'fulfilled' && allSkillsRes.value.ok) {
+          const data = await allSkillsRes.value.json()
+          setAllSkills(Array.isArray(data) ? data : [])
+        }
 
-      // Fetch credit balance
-      const creditRes = await fetch(`${API_BASE_URL}/api/credits/balance`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      if (creditRes.ok) {
-        const creditData = await creditRes.json()
-        setCreditBalance(creditData.currentBalance || 0)
+        if (sessionsRes.status === 'fulfilled' && sessionsRes.value.ok) {
+          const data = await sessionsRes.value.json()
+          setSessions(Array.isArray(data) ? data : [])
+        }
+
+        if (creditsRes.status === 'fulfilled' && creditsRes.value.ok) {
+          const data = await creditsRes.value.json()
+          setCreditBalance(data.currentBalance ?? user.credits ?? 0)
+        }
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Dashboard data fetch failed:', error)
+        }
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    } finally {
-      setLoading(false)
     }
-  }
+
+    loadDashboardData()
+
+    return () => controller.abort()
+  }, [user])
 
   if (!user) {
     return (
-      <main style={{ padding: 'var(--spacing-2xl)', textAlign: 'center', color: 'var(--color-text-light)' }}>
-        Please log in first
+      <main className="alt-dashboard-empty">
+        Please log in to access your dashboard.
       </main>
     )
   }
 
-  // Calculate metrics
-  const skillsTaught = skills.filter(s => s.teacherId === user.id).length
-  const skillsLearned = skills.filter(s => s.teacherId !== user.id).length
-  const activeExchanges = sessions.filter(s => s.status === 'active').length
-  const completedExchanges = sessions.filter(s => s.status === 'completed').length
+  const taughtCount = skills.filter((skill) => String(skill.teacherId) === String(user.id)).length
+  const learnedCount = Math.max(skills.length - taughtCount, 0)
+  const completedSessions = sessions.filter((session) => session.status === 'completed').length
+  const progressPercent = Math.min(95, Math.max(26, completedSessions * 10 + learnedCount * 5 + 24))
+  const hoursLearned = Math.max(12, completedSessions * 3 + learnedCount * 2 + 6)
+  const badgesEarned = Math.max(3, Math.floor((completedSessions + taughtCount) / 2) + 2)
 
-  const skillScore = (skillsTaught * 10) + (skillsLearned * 5) + (completedExchanges * 20)
-  const balanceScore = skillsTaught > 0 ? Math.round((skillsLearned / skillsTaught) * 100) : 0
+  const activities = useMemo(() => {
+    const generated = sessions.slice(0, 4).map((session, index) => ({
+      id: session.id || `session-${index}`,
+      label: session.skillName || session.topic || `Completed session ${index + 1}`,
+      detail: session.status === 'completed' ? 'Completed exchange' : 'Upcoming exchange',
+      tone: ['amber', 'cyan', 'violet', 'green'][index % 4],
+    }))
+
+    if (generated.length >= 4) {
+      return generated
+    }
+
+    return [
+      ...generated,
+      { id: 'fallback-1', label: 'Completed HTML Basics', detail: 'Recent activity', tone: 'amber' },
+      { id: 'fallback-2', label: 'Started CSS Course', detail: 'Recent activity', tone: 'cyan' },
+      { id: 'fallback-3', label: 'Joined Study Group', detail: 'Recent activity', tone: 'violet' },
+      { id: 'fallback-4', label: 'Earned 50 Credits', detail: 'Recent activity', tone: 'green' },
+    ].slice(0, 4)
+  }, [sessions])
+
+  const courseCards = useMemo(() => {
+    if (!allSkills.length) {
+      return fallbackCourseCards
+    }
+
+    return allSkills.slice(0, 8).map((skill, index) => ({
+      id: skill.id || `${normalizeSkillTitle(skill, index)}-${index}`,
+      title: normalizeSkillTitle(skill, index),
+      mentor: skill.teacherName || skill.user?.name || 'SkillSwap Mentor',
+      pace: skill.level || ['Beginner', 'Intermediate', 'Advanced'][index % 3],
+      tone: toneCycle[index % toneCycle.length],
+    }))
+  }, [allSkills])
+
+  const tutorCards = useMemo(
+    () =>
+      courseCards.slice(0, 4).map((card, index) => ({
+        id: `${card.title}-${index}`,
+        name: card.mentor,
+        course: card.title,
+        rating: (4.7 + (index % 3) * 0.1).toFixed(1),
+      })),
+    [courseCards]
+  )
+
+  const showWorkspace = activePanel !== 'overview'
+
+  const renderWorkspace = () => {
+    if (activePanel === 'courses') {
+      return <SkillBrowser />
+    }
+
+    if (activePanel === 'sessions') {
+      return <SessionManager />
+    }
+
+    if (activePanel === 'skills') {
+      return <SkillManager onSkillAdded={() => setActivePanel('overview')} />
+    }
+
+    if (activePanel === 'profile') {
+      return (
+        <div className="alt-profile-grid">
+          <article>
+            <p>Name</p>
+            <h4>{user.name}</h4>
+          </article>
+          <article>
+            <p>Email</p>
+            <h4>{user.email || 'Not available'}</h4>
+          </article>
+          <article>
+            <p>Credits</p>
+            <h4>{creditBalance || user.credits || 0}</h4>
+          </article>
+          <article>
+            <p>Skill Score</p>
+            <h4>{taughtCount * 10 + completedSessions * 8 + learnedCount * 4}</h4>
+          </article>
+          <div className="alt-credit-panel-wrap">
+            <CreditPanel />
+          </div>
+        </div>
+      )
+    }
+
+    return null
+  }
+
+  const handleActionClick = (target) => {
+    if (target === 'home') {
+      navigate('/')
+      return
+    }
+
+    if (target === 'messages') {
+      navigate('/messages')
+      return
+    }
+
+    setActivePanel(target)
+  }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0f1419' }}>
-      {/* ========== SIDEBAR: IDENTITY ANCHOR ========== */}
-      <aside
-        style={{
-          width: '280px',
-          background: 'linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%)',
-          borderRight: '1px solid rgba(79, 70, 229, 0.2)',
-          padding: 'var(--spacing-2xl)',
-          position: 'fixed',
-          height: '100vh',
-          overflowY: 'auto',
-          boxShadow: '2px 0 20px rgba(0, 0, 0, 0.3)'
-        }}
-      >
-        {/* Profile Section */}
-        <div style={{ marginBottom: 'var(--spacing-3xl)', textAlign: 'center' }}>
-          {/* Avatar */}
-          <div
-            style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '32px',
-              fontWeight: 'bold',
-              margin: '0 auto var(--spacing-lg)',
-              boxShadow: '0 0 30px rgba(79, 70, 229, 0.5)'
-            }}
-          >
-            {user.name.charAt(0).toUpperCase()}
-          </div>
-
-          {/* Name */}
-          <h3 style={{ margin: '0 0 var(--spacing-xs)', color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'bold' }}>
-            {user.name}
-          </h3>
-
-          {/* Skill Level Badge */}
-          <div
-            style={{
-              display: 'inline-block',
-              background: 'rgba(79, 70, 229, 0.2)',
-              color: '#a5b4fc',
-              padding: 'var(--spacing-xs) var(--spacing-md)',
-              borderRadius: '20px',
-              fontSize: '0.75rem',
-              fontWeight: 'bold',
-              border: '1px solid rgba(79, 70, 229, 0.4)',
-              marginTop: 'var(--spacing-xs)'
-            }}
-          >
-            {skillsTaught > 5 ? '⭐ Expert' : skillsTaught > 2 ? '🎯 Intermediate' : '🌱 Beginner'}
-          </div>
-
-          {/* SkillSwap Score */}
-          <div style={{ marginTop: 'var(--spacing-lg)' }}>
-            <p style={{ margin: '0 0 var(--spacing-xs)', color: '#a5b4fc', fontSize: '0.85rem', fontWeight: 'bold' }}>
-              SkillScore
-            </p>
-            <p style={{ margin: '0', color: '#4ade80', fontSize: '2rem', fontWeight: 'bold' }}>
-              {skillScore}
-            </p>
-          </div>
-
-          {/* Credit Balance */}
-          <div style={{ marginTop: 'var(--spacing-lg)', padding: 'var(--spacing-md)', background: 'rgba(79, 70, 229, 0.1)', borderRadius: '8px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-            <p style={{ margin: '0 0 var(--spacing-xs)', color: '#c4b5fd', fontSize: '0.85rem', fontWeight: 'bold' }}>
-              💳 Credits
-            </p>
-            <p style={{ margin: '0', color: '#a78bfa', fontSize: '1.8rem', fontWeight: 'bold' }}>
-              {creditBalance}
-            </p>
-            <p style={{ margin: 'var(--spacing-xs) 0 0 0', color: '#9ca3af', fontSize: '0.7rem' }}>
-              Available balance
-            </p>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-          {[
-            { id: 'overview', label: '📊 Overview', icon: '📊' },
-            { id: 'explore', label: '🔍 Explore Skills', icon: '🔍' },
-            { id: 'skills', label: '🎓 My Skills', icon: '🎓' },
-            { id: 'exchanges', label: '🔄 Exchanges', icon: '🔄' },
-            { id: 'messages', label: '💬 Messages', icon: '💬' },
-            { id: 'profile', label: '👤 Profile', icon: '👤' },
-            { id: 'settings', label: '⚙️ Settings', icon: '⚙️' }
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActivePanel(item.id)}
-              style={{
-                background: activePanel === item.id ? 'rgba(79, 70, 229, 0.3)' : 'transparent',
-                border: activePanel === item.id ? '1px solid rgba(79, 70, 229, 0.6)' : '1px solid transparent',
-                color: activePanel === item.id ? '#a5b4fc' : '#6b7280',
-                padding: 'var(--spacing-md) var(--spacing-lg)',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '0.95rem',
-                fontWeight: activePanel === item.id ? '600' : '500',
-                transition: 'all 0.2s ease',
-                textAlign: 'left'
-              }}
-              onMouseEnter={e => !activePanel === item.id && (e.target.style.background = 'rgba(79, 70, 229, 0.1)')}
-              onMouseLeave={e => !activePanel === item.id && (e.target.style.background = 'transparent')}
-            >
-              {item.label}
+    <div className="alt-dashboard-page">
+      <div className="alt-dashboard-shell" id="dashboard-top">
+        <section className="alt-hero">
+          <header className="alt-hero-nav">
+            <div className="alt-brand">SkillSwap</div>
+            <button type="button" className="alt-nav-chip" onClick={() => setActivePanel('courses')}>
+              Credits
             </button>
-          ))}
-        </nav>
+            <div className="alt-hero-controls">
+              <button type="button" className="alt-icon-chip" aria-label="Search">
+                <Search size={15} />
+              </button>
+              <button type="button" className="alt-user-chip" onClick={() => setActivePanel('profile')}>
+                <CircleUserRound size={15} />
+                {user.name}
+              </button>
+            </div>
+          </header>
 
-        {/* Credits Display */}
-        <div
-          style={{
-            marginTop: 'var(--spacing-3xl)',
-            padding: 'var(--spacing-lg)',
-            background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(120, 58, 237, 0.1) 100%)',
-            borderRadius: '8px',
-            border: '1px solid rgba(79, 70, 229, 0.2)',
-            textAlign: 'center'
-          }}
-        >
-          <p style={{ margin: '0 0 var(--spacing-xs)', color: '#6b7280', fontSize: '0.85rem' }}>Available Credits</p>
-          <p style={{ margin: '0', color: '#fbbf24', fontSize: '1.5rem', fontWeight: 'bold' }}>💰 {user.credits}</p>
-        </div>
-      </aside>
+          <div className="alt-hero-body">
+            <div className="alt-hero-figure alt-hero-figure-left" aria-hidden="true">
+              <SittingDoodle accent="#f5a524" ink="#1f2a44" />
+            </div>
 
-      {/* ========== MAIN CONTENT AREA ========== */}
-      <div style={{ marginLeft: '280px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* ========== TOP BAR: COMMAND LAYER ========== */}
-        <header
-          style={{
-            background: 'linear-gradient(90deg, #1a1f2e 0%, #242d3d 100%)',
-            borderBottom: '1px solid rgba(79, 70, 229, 0.2)',
-            padding: 'var(--spacing-lg) var(--spacing-2xl)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
-          }}
-        >
-          <h1 style={{ margin: '0', color: 'white', fontSize: 'var(--font-size-2xl)', fontWeight: 'bold' }}>
-            Skill Intelligence Dashboard
-          </h1>
+            <div className="alt-hero-copy">
+              <h1>Your Learning Journey</h1>
+              <p>
+                Keep growing with peer-led classes, credit rewards, and guided skill pathways.
+              </p>
+              <button type="button" className="alt-cta" onClick={() => setActivePanel('courses')}>
+                Get Started
+              </button>
+            </div>
 
-          <div style={{ display: 'flex', gap: 'var(--spacing-lg)', alignItems: 'center' }}>
-            {/* Search Bar */}
-            <input
-              type="text"
-              placeholder="Search skills or users..."
-              style={{
-                background: 'rgba(79, 70, 229, 0.1)',
-                border: '1px solid rgba(79, 70, 229, 0.3)',
-                color: 'white',
-                padding: 'var(--spacing-md) var(--spacing-lg)',
-                borderRadius: '8px',
-                width: '250px',
-                placeholder: '#a0aec0'
-              }}
-            />
-
-            {/* Add Skill Button */}
-            <button
-              onClick={() => setActivePanel('skills')}
-              style={{
-                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                color: 'white',
-                padding: 'var(--spacing-md) var(--spacing-lg)',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 0 20px rgba(79, 70, 229, 0.4)'
-              }}
-              onMouseEnter={e => (e.target.style.boxShadow = '0 0 40px rgba(79, 70, 229, 0.8)')}
-              onMouseLeave={e => (e.target.style.boxShadow = '0 0 20px rgba(79, 70, 229, 0.4)')}
-            >
-              + Add Skill
-            </button>
-
-            {/* Notification Bell */}
-            <button
-              style={{
-                background: 'transparent',
-                color: '#a5b4fc',
-                border: 'none',
-                fontSize: '1.5rem',
-                cursor: 'pointer'
-              }}
-            >
-              🔔
-            </button>
+            <div className="alt-hero-figure alt-hero-figure-right" aria-hidden="true">
+              <StrollingDoodle accent="#ffc35f" ink="#1f2a44" />
+            </div>
           </div>
-        </header>
+        </section>
 
-        {/* ========== MAIN GRID: SKILL INTELLIGENCE PANELS ========== */}
-        <main
-          style={{
-            flex: 1,
-            padding: 'var(--spacing-2xl)',
-            overflowY: 'auto',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-            gap: 'var(--spacing-2xl)',
-            alignContent: 'start'
-          }}
-        >
-          {activePanel === 'overview' && (
-            <>
-              {/* Panel 1: Skill Growth Overview */}
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)',
-                  border: '1px solid rgba(79, 70, 229, 0.2)',
-                  borderRadius: '12px',
-                  padding: 'var(--spacing-2xl)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 12px 48px rgba(79, 70, 229, 0.3)')}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)')}
-              >
-                <h3 style={{ margin: '0 0 var(--spacing-lg)', color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'bold' }}>
-                  📊 Growth Overview
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-lg)' }}>
-                  <div style={{ background: 'rgba(34, 197, 94, 0.1)', padding: 'var(--spacing-lg)', borderRadius: '8px', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
-                    <p style={{ margin: '0 0 var(--spacing-xs)', color: '#86efac', fontSize: '0.85rem', fontWeight: 'bold' }}>Skills Taught</p>
-                    <p style={{ margin: '0', color: '#22c55e', fontSize: '2rem', fontWeight: 'bold' }}>{skillsTaught}</p>
+        <section className="alt-pillars" id="dashboard-features">
+          <div className="alt-pillars-grid">
+            {featurePillars.map((item, index) => {
+              const Icon = item.icon
+              return (
+                <article key={item.title} className={`alt-pillar-card alt-pillar-${index}`}>
+                  <div className="alt-pillar-icon">
+                    <Icon size={30} />
                   </div>
-                  <div style={{ background: 'rgba(96, 165, 250, 0.1)', padding: 'var(--spacing-lg)', borderRadius: '8px', border: '1px solid rgba(96, 165, 250, 0.2)' }}>
-                    <p style={{ margin: '0 0 var(--spacing-xs)', color: '#bfdbfe', fontSize: '0.85rem', fontWeight: 'bold' }}>Skills Learned</p>
-                    <p style={{ margin: '0', color: '#60a5fa', fontSize: '2rem', fontWeight: 'bold' }}>{skillsLearned}</p>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                </article>
+              )
+            })}
+          </div>
+        </section>
+
+        <section className="alt-board" id="dashboard-overview">
+          <header className="alt-board-head">
+            <h2>Dashboard</h2>
+            <button type="button" className="alt-search-button" aria-label="Find a course">
+              <Search size={16} />
+            </button>
+          </header>
+
+          {loading ? <p className="alt-loading-note">Syncing your latest dashboard data...</p> : null}
+
+          <div className="alt-board-grid">
+            <aside className="alt-side-stack">
+              <article className="alt-progress-card">
+                <h3>My Progress</h3>
+                <div className="alt-progress-ring" style={{ '--progress': `${progressPercent}%` }}>
+                  <div>
+                    <strong>{progressPercent}%</strong>
+                    <span>Complete</span>
                   </div>
                 </div>
-              </div>
 
-              {/* Panel 2: Skill Balance Meter */}
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)',
-                  border: '1px solid rgba(79, 70, 229, 0.2)',
-                  borderRadius: '12px',
-                  padding: 'var(--spacing-2xl)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 12px 48px rgba(79, 70, 229, 0.3)')}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)')}
-              >
-                <h3 style={{ margin: '0 0 var(--spacing-lg)', color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'bold' }}>
-                  ⚖️ Balance Meter
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-lg)' }}>
-                  <div style={{ textAlign: 'center', flex: 1 }}>
-                    <p style={{ margin: '0 0 var(--spacing-xs)', color: '#a5b4fc', fontSize: '0.75rem', fontWeight: 'bold' }}>Balance Score</p>
-                    <div
-                      style={{
-                        width: '100px',
-                        height: '100px',
-                        borderRadius: '50%',
-                        background: `conic-gradient(#4ade80 ${balanceScore}%, rgba(79, 70, 229, 0.2) 0%)`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto',
-                        fontWeight: 'bold',
-                        color: '#4ade80',
-                        fontSize: '1.2rem'
-                      }}
-                    >
-                      {balanceScore}%
-                    </div>
-                  </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)', fontSize: '0.85rem' }}>
-                  <div><span style={{ color: '#a5b4fc' }}>Offered:</span> <span style={{ color: '#22c55e', fontWeight: 'bold' }}>{skillsTaught}</span></div>
-                  <div><span style={{ color: '#a5b4fc' }}>Received:</span> <span style={{ color: '#60a5fa', fontWeight: 'bold' }}>{skillsLearned}</span></div>
-                </div>
-              </div>
+                <ul>
+                  <li>
+                    <span>Courses Completed</span>
+                    <strong>{completedSessions}</strong>
+                  </li>
+                  <li>
+                    <span>Hours Learned</span>
+                    <strong>{hoursLearned}</strong>
+                  </li>
+                  <li>
+                    <span>Badges Earned</span>
+                    <strong>{badgesEarned}</strong>
+                  </li>
+                </ul>
+              </article>
 
-              {/* Panel 3: Credit Balance */}
-              <CreditPanel />
-
-              {/* Panel 4: Active Exchanges */}
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)',
-                  border: '1px solid rgba(79, 70, 229, 0.2)',
-                  borderRadius: '12px',
-                  padding: 'var(--spacing-2xl)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 12px 48px rgba(79, 70, 229, 0.3)')}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)')}
-              >
-                <h3 style={{ margin: '0 0 var(--spacing-lg)', color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'bold' }}>
-                  🔄 Active Exchanges
-                </h3>
-                {sessions.length === 0 ? (
-                  <p style={{ margin: '0', color: '#6b7280', fontSize: '0.9rem' }}>No active exchanges yet. Start learning!</p>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                    {sessions.slice(0, 3).map(session => (
-                      <div
-                        key={session.id}
-                        style={{
-                          background: 'rgba(79, 70, 229, 0.1)',
-                          padding: 'var(--spacing-md)',
-                          borderRadius: '8px',
-                          border: '1px solid rgba(79, 70, 229, 0.2)'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ color: '#a5b4fc', fontWeight: 'bold' }}>{session.status === 'active' ? '🟢 Active' : '✅ Completed'}</span>
-                          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{session.skillId}</span>
-                        </div>
+              <article className="alt-activity-card">
+                <h3>Recent Activity</h3>
+                <ul>
+                  {activities.map((item) => (
+                    <li key={item.id}>
+                      <span className={`alt-activity-dot ${item.tone}`} />
+                      <div>
+                        <strong>{item.label}</strong>
+                        <small>{item.detail}</small>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    </li>
+                  ))}
+                </ul>
+              </article>
 
-              {/* Panel 4: Skill Recommendations */}
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)',
-                  border: '1px solid rgba(79, 70, 229, 0.2)',
-                  borderRadius: '12px',
-                  padding: 'var(--spacing-2xl)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 12px 48px rgba(79, 70, 229, 0.3)')}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)')}
-              >
-                <h3 style={{ margin: '0 0 var(--spacing-lg)', color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'bold' }}>
-                  💡 Recommended Skills
-                </h3>
-                <p style={{ margin: '0 0 var(--spacing-lg)', color: '#a5b4fc', fontSize: '0.9rem' }}>You may want to learn:</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                  {['Machine Learning', 'UI Animation', 'Backend Development'].map((skill, idx) => (
-                    <button
-                      key={idx}
-                      style={{
-                        background: 'rgba(79, 70, 229, 0.1)',
-                        border: '1px solid rgba(79, 70, 229, 0.3)',
-                        color: '#a5b4fc',
-                        padding: 'var(--spacing-md)',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.background = 'rgba(79, 70, 229, 0.2)'
-                        e.currentTarget.style.borderColor = 'rgba(79, 70, 229, 0.6)'
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.background = 'rgba(79, 70, 229, 0.1)'
-                        e.currentTarget.style.borderColor = 'rgba(79, 70, 229, 0.3)'
-                      }}
-                    >
-                      + Learn {skill}
+              <article className="alt-quick-card">
+                <h3>Quick Access</h3>
+                <div className="alt-quick-list">
+                  {quickActions.map((action) => {
+                    const Icon = action.icon
+                    return (
+                      <button
+                        type="button"
+                        key={action.label}
+                        onClick={() => handleActionClick(action.key)}
+                      >
+                        <Icon size={15} />
+                        <span>{action.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </article>
+            </aside>
+
+            <div className="alt-course-grid" id="dashboard-courses">
+              {courseCards.map((course, index) => (
+                <article key={course.id || `${course.title}-${index}`} className={`alt-course-card ${course.tone}`}>
+                  <header>
+                    <div className="alt-course-avatar">{getNameInitial(course.mentor)}</div>
+                    <button type="button" aria-label={`Save ${course.title}`}>
+                      <Star size={13} />
                     </button>
-                  ))}
-                </div>
-              </div>
+                  </header>
+                  <h4>{course.title}</h4>
+                  <p>{course.mentor}</p>
+                  <footer>
+                    <span>{course.pace}</span>
+                    <button type="button" onClick={() => setActivePanel('courses')}>
+                      Enroll
+                    </button>
+                  </footer>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
 
-              {/* Panel 5: Skill Inventory */}
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)',
-                  border: '1px solid rgba(79, 70, 229, 0.2)',
-                  borderRadius: '12px',
-                  padding: 'var(--spacing-2xl)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 12px 48px rgba(79, 70, 229, 0.3)')}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)')}
+        <section className="alt-tutors" id="dashboard-tutors">
+          <div className="alt-tutor-figure" aria-hidden="true">
+            <SittingReadingDoodle accent="#f8ab2f" ink="#1d2743" />
+          </div>
+
+          <div className="alt-tutor-panel">
+            <header>
+              <h3>Top Tutors</h3>
+              <button type="button" onClick={() => setActivePanel('courses')}>
+                Explore
+              </button>
+            </header>
+
+            <div className="alt-tutor-grid">
+              {tutorCards.map((tutor) => (
+                <article key={tutor.id}>
+                  <div className="alt-tutor-avatar">{getNameInitial(tutor.name)}</div>
+                  <h4>{tutor.course}</h4>
+                  <p>{tutor.name}</p>
+                  <div>
+                    <Star size={12} />
+                    {tutor.rating}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="alt-tutor-figure alt-tutor-figure-right" aria-hidden="true">
+            <ReadingDoodle accent="#ff8f45" ink="#1d2743" />
+          </div>
+        </section>
+
+        {showWorkspace ? (
+          <section className="alt-workspace" id="dashboard-workspace">
+            <header>
+              <div>
+                <h3>{panelTitles[activePanel] || 'Workspace'}</h3>
+                <p>Opened from quick access tools.</p>
+              </div>
+              <button type="button" onClick={() => setActivePanel('overview')}>
+                Back to Dashboard
+              </button>
+            </header>
+            <div className="alt-workspace-body">{renderWorkspace()}</div>
+          </section>
+        ) : null}
+
+        <footer className="alt-dock-nav">
+          {dockItems.map((item) => {
+            const Icon = item.icon
+            const isActive =
+              (item.key === 'dashboard' && activePanel === 'overview') ||
+              activePanel === item.target
+
+            return (
+              <button
+                type="button"
+                key={item.key}
+                className={isActive ? 'is-active' : ''}
+                onClick={() => handleActionClick(item.target)}
               >
-                <h3 style={{ margin: '0 0 var(--spacing-lg)', color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'bold' }}>
-                  📚 Your Skills
-                </h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
-                  {skills.length === 0 ? (
-                    <p style={{ margin: '0', color: '#6b7280', fontSize: '0.9rem' }}>No skills added yet</p>
-                  ) : (
-                    skills.slice(0, 6).map((skill, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          background: 'rgba(79, 70, 229, 0.15)',
-                          color: '#a5b4fc',
-                          padding: 'var(--spacing-md) var(--spacing-lg)',
-                          borderRadius: '20px',
-                          border: '1px solid rgba(79, 70, 229, 0.3)',
-                          fontSize: '0.9rem',
-                          fontWeight: '500'
-                        }}
-                      >
-                        {skill.name || skill} ● {skill.teacherId === user.id ? '⭐ teaching' : '🌱 learning'}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+                <Icon size={16} />
+                <span>{item.label}</span>
+              </button>
+            )
+          })}
 
-              {/* Panel 6: Ecosystem Activity Feed (spans 2 columns) */}
-              <div
-                style={{
-                  gridColumn: 'span 2',
-                  background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)',
-                  border: '1px solid rgba(79, 70, 229, 0.2)',
-                  borderRadius: '12px',
-                  padding: 'var(--spacing-2xl)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 12px 48px rgba(79, 70, 229, 0.3)')}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)')}
-              >
-                <h3 style={{ margin: '0 0 var(--spacing-lg)', color: 'white', fontSize: 'var(--font-size-lg)', fontWeight: 'bold' }}>
-                  🌍 Ecosystem Activity
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                  {[
-                    { user: 'Rahul', action: 'started learning', skill: 'Python', emoji: '🐍' },
-                    { user: 'Ananya', action: 'completed', skill: 'React exchange', emoji: '⚛️' },
-                    { user: 'David', action: 'added new skill', skill: 'Figma', emoji: '🎨' },
-                    { user: 'Priya', action: 'started teaching', skill: 'UI Design', emoji: '✨' }
-                  ].map((activity, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        background: 'rgba(79, 70, 229, 0.08)',
-                        padding: 'var(--spacing-md)',
-                        borderRadius: '8px',
-                        border: '1px solid rgba(79, 70, 229, 0.15)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 'var(--spacing-md)'
-                      }}
-                    >
-                      <span style={{ fontSize: '1.2rem' }}>{activity.emoji}</span>
-                      <span style={{ color: '#a5b4fc', flex: 1 }}>
-                        <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>{activity.user}</span> {activity.action} <span style={{ fontWeight: 'bold', color: '#4ade80' }}>{activity.skill}</span>
-                      </span>
-                      <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>2m ago</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* OTHER PANELS */}
-          {activePanel === 'skills' && (
-            <div style={{ gridColumn: '1 / -1' }}>
-              <SkillManager onSkillAdded={() => fetchData()} />
-            </div>
-          )}
-
-          {activePanel === 'explore' && (
-            <div style={{ gridColumn: '1 / -1' }}>
-              <SkillBrowser />
-            </div>
-          )}
-
-          {activePanel === 'exchanges' && (
-            <div style={{ gridColumn: '1 / -1' }}>
-              <SessionManager />
-            </div>
-          )}
-
-          {activePanel === 'messages' && (
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Messaging />
-            </div>
-          )}
-
-          {activePanel === 'profile' && (
-            <div style={{ gridColumn: '1 / -1' }}>
-              <div style={{ background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)', border: '1px solid rgba(79, 70, 229, 0.2)', borderRadius: '12px', padding: 'var(--spacing-2xl)' }}>
-                <h2 style={{ color: 'white', marginBottom: 'var(--spacing-lg)' }}>👤 Your Profile</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 'var(--spacing-2xl)' }}>
-                  <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                    <p style={{ margin: '0 0 var(--spacing-xs)', color: '#a5b4fc', fontSize: '0.85rem' }}>Name</p>
-                    <p style={{ margin: '0', color: 'white', fontSize: '1.1rem', fontWeight: 'bold' }}>{user.name}</p>
-                  </div>
-                  <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                    <p style={{ margin: '0 0 var(--spacing-xs)', color: '#a5b4fc', fontSize: '0.85rem' }}>Email</p>
-                    <p style={{ margin: '0', color: 'white', fontSize: '1.1rem', fontWeight: 'bold' }}>{user.email}</p>
-                  </div>
-                  <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                    <p style={{ margin: '0 0 var(--spacing-xs)', color: '#a5b4fc', fontSize: '0.85rem' }}>Credits Available</p>
-                    <p style={{ margin: '0', color: '#fbbf24', fontSize: '1.1rem', fontWeight: 'bold' }}>💰 {user.credits}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activePanel === 'settings' && (
-            <div style={{ gridColumn: '1 / -1' }}>
-              <div style={{ background: 'linear-gradient(135deg, #1a1f2e 0%, #242d3d 100%)', border: '1px solid rgba(79, 70, 229, 0.2)', borderRadius: '12px', padding: 'var(--spacing-2xl)' }}>
-                <h2 style={{ color: 'white', marginBottom: 'var(--spacing-lg)' }}>⚙️ Settings</h2>
-                <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: 'var(--spacing-2xl)', borderRadius: '12px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
-                  <p style={{ margin: '0 0 var(--spacing-md)', color: '#a5b4fc' }}>Settings will be available soon. Stay tuned!</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </main>
+          <div className="alt-credit-chip" role="status" aria-live="polite">
+            <Trophy size={14} />
+            {creditBalance || user.credits || 0} credits
+          </div>
+        </footer>
       </div>
     </div>
   )
