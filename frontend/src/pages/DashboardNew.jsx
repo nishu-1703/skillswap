@@ -135,7 +135,7 @@ const quickActions = [
   { key: 'courses', label: 'My Courses', icon: BookOpen },
   { key: 'messages', label: 'Messages', icon: MessageCircle },
   { key: 'sessions', label: 'Calendar', icon: CalendarDays },
-  { key: 'skills', label: 'Notes', icon: Settings },
+  { key: 'skills', label: 'Add Skill', icon: Settings },
 ]
 
 const dockItems = [
