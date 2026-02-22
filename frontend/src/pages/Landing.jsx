@@ -2,306 +2,348 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowRight,
-  Check,
-  Code2,
-  Coins,
-  PenTool,
-  Repeat2,
-  ShieldCheck,
-  Sparkles,
-  UserCircle2,
+  BookOpen,
+  Cog,
+  Compass,
+  GraduationCap,
+  Home,
+  MessageCircle,
+  Search,
+  Settings,
+  Star,
 } from 'lucide-react';
 import './Landing.css';
+import SittingDoodle from '../components/doodles/SittingDoodle';
+import ReadingDoodle from '../components/doodles/ReadingDoodle';
+import SittingReadingDoodle from '../components/doodles/SittingReadingDoodle';
+import StrollingDoodle from '../components/doodles/StrollingDoodle';
 
-const navItems = [
-  { label: 'Features', target: 'features' },
-  { label: 'Skills', target: 'preview' },
-  { label: 'How It Works', target: 'features' },
-];
-
-const previewSkills = [
-  { icon: Code2, name: 'Web Development', credits: 20 },
-  { icon: Sparkles, name: 'Python Programming', credits: 15 },
-  { icon: PenTool, name: 'UI Design', credits: 10 },
+const navLinks = [
+  { label: 'Home', target: 'top' },
+  { label: 'Courses', target: 'dashboard' },
+  { label: 'About', target: 'features' },
+  { label: 'Contact', target: 'footer' },
 ];
 
 const featureCards = [
   {
-    icon: Repeat2,
-    title: 'Skill Exchange',
-    description: 'Exchange your skills with learners worldwide using a simple request flow.',
+    icon: GraduationCap,
+    title: 'Learning',
+    description:
+      'Learn practical skills through guided peer sessions, weekly projects, and structured progress tracking.',
   },
   {
-    icon: Coins,
-    title: 'Credit System',
-    description: 'Earn credits by teaching and spend credits to learn from other members.',
+    icon: Cog,
+    title: 'Skills',
+    description:
+      'Build and share your expertise, collect credits, and unlock advanced classes from trusted mentors.',
   },
   {
-    icon: UserCircle2,
-    title: 'User Profiles',
-    description: 'Build a clear teaching profile with skills, reviews, and session history.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Secure Platform',
-    description: 'Reliable access, verified accounts, and structured skill request workflows.',
+    icon: MessageCircle,
+    title: 'Community',
+    description:
+      'Collaborate in a friendly community where learners and teachers help each other grow every day.',
   },
 ];
 
-const dashboardRows = [
-  { name: 'Web Development', details: 'Available | Friends: 20' },
-  { name: 'Graphic Design', details: 'Available | Friends: 15' },
+const dashboardCourses = [
+  { tone: 'blue', title: 'Web Design', teacher: 'Alex Morgan', rating: '4.8', students: '220' },
+  { tone: 'purple', title: 'UI Basics', teacher: 'Priya Das', rating: '4.7', students: '180' },
+  { tone: 'teal', title: 'Python Core', teacher: 'Diana Stone', rating: '4.9', students: '265' },
+  { tone: 'violet', title: 'Brand Visuals', teacher: 'Noah Reed', rating: '4.8', students: '210' },
 ];
 
-const benefits = ['Track credits', 'Browse skills', 'Exchange knowledge easily'];
+const tutorCards = [
+  { name: 'Emma Wilson', course: 'Modern Design', rating: '5.0' },
+  { name: 'Ava Brown', course: 'React Essentials', rating: '4.9' },
+  { name: 'Liam Jones', course: 'Communication', rating: '4.8' },
+  { name: 'Noah Scott', course: 'Growth Strategy', rating: '4.9' },
+];
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
+const sideMenu = [
+  { icon: Home, label: 'Home' },
+  { icon: Compass, label: 'Explore' },
+  { icon: BookOpen, label: 'Feed' },
+  { icon: Settings, label: 'Settings' },
+];
+
+const reveal = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
 };
 
 export default function Landing() {
   const navigate = useNavigate();
 
-  const scrollToSection = (sectionId) => {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToSection = (id) => {
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
   return (
-    <div className="cosmic-landing">
-      <div className="cosmic-bg" aria-hidden="true">
-        <div className="cosmic-stars" />
-        <div className="cosmic-nebula nebula-a" />
-        <div className="cosmic-nebula nebula-b" />
-        <div className="cosmic-nebula nebula-c" />
-        <div className="cosmic-trail trail-a" />
-        <div className="cosmic-trail trail-b" />
-        <div className="cosmic-trail trail-c" />
-      </div>
-
-      <div className="cosmic-shell">
-        <motion.header
-          className="cosmic-topbar cosmic-glass"
-          initial={{ opacity: 0, y: -18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <button className="cosmic-brand" onClick={() => navigate('/')}>
-            <Sparkles size={18} />
-            <span>SkillSwap</span>
-          </button>
-
-          <nav className="cosmic-nav" aria-label="Landing navigation">
-            {navItems.map((item) => (
-              <button key={item.label} onClick={() => scrollToSection(item.target)}>
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-          <div className="cosmic-auth">
-            <button className="cosmic-link-btn" onClick={() => navigate('/login')}>
-              Login
+    <div className="edu-page" id="top">
+      <div className="edu-shell">
+        <section className="edu-hero">
+          <header className="edu-nav">
+            <button type="button" className="edu-logo" onClick={() => navigate('/')}>
+              SkillSwap
             </button>
-            <button className="cosmic-mini-cta" onClick={() => navigate('/signup')}>
-              Sign Up
-            </button>
-          </div>
-        </motion.header>
 
-        <section className="cosmic-hero" id="top">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            transition={{ duration: 0.65 }}
-            className="cosmic-hero-copy"
-          >
-            <h1>Learn & Teach Skills Without Money</h1>
-            <p>Exchange knowledge using credits. Grow your skills together.</p>
+            <nav className="edu-nav-links" aria-label="Landing">
+              {navLinks.map((link) => (
+                <button type="button" key={link.label} onClick={() => scrollToSection(link.target)}>
+                  {link.label}
+                </button>
+              ))}
+            </nav>
 
-            <div className="cosmic-actions">
-              <button className="cosmic-primary-btn" onClick={() => navigate('/signup')}>
-                Get Started <ArrowRight size={16} />
+            <div className="edu-nav-right">
+              <button type="button" className="edu-search-pill" aria-label="Search">
+                <Search size={14} />
+                <span>Search</span>
               </button>
-              <button className="cosmic-secondary-btn" onClick={() => scrollToSection('preview')}>
-                Explore Skills
+              <button type="button" className="edu-signup-pill" onClick={() => navigate('/signup')}>
+                Sign Up
               </button>
             </div>
-          </motion.div>
+          </header>
 
-          <motion.div
-            initial={{ opacity: 0, x: 28 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="cosmic-dashboard-wrap"
-          >
-            <div className="planet-orb" aria-hidden="true" />
-            <div className="cosmic-dashboard cosmic-glass">
-              <div className="dashboard-head">
-                <span>SkillSwap</span>
-                <span>Credits</span>
-              </div>
+          <div className="edu-hero-body">
+            <motion.div
+              className="edu-figure-img edu-figure-left"
+              initial={{ opacity: 0, y: 18, x: -20 }}
+              animate={{ opacity: 1, y: 0, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              aria-hidden="true"
+            >
+              <SittingDoodle ink="#1f1f39" accent="#f6ad2a" />
+            </motion.div>
 
-              <div className="dashboard-balance cosmic-glass-soft">
-                <p>Credits Balance</p>
-                <h3>
-                  120 <span>Credits</span>
-                </h3>
-              </div>
+            <motion.div
+              className="edu-hero-copy"
+              variants={reveal}
+              initial="hidden"
+              animate="show"
+              transition={{ duration: 0.55 }}
+            >
+              <h1>Landing Page for Skill Growth</h1>
+              <p>
+                Learn, teach, and exchange knowledge with a credit-based system designed for students and mentors.
+              </p>
+              <button type="button" className="edu-hero-cta" onClick={() => navigate('/signup')}>
+                Get Started
+              </button>
+            </motion.div>
 
-              <div className="dashboard-list">
-                {dashboardRows.map((row) => (
-                  <div className="dashboard-row cosmic-glass-soft" key={row.name}>
-                    <div>
-                      <h4>{row.name}</h4>
-                      <p>{row.details}</p>
-                    </div>
-                    <button>Request Skill</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </section>
-
-        <section className="cosmic-section" id="preview">
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            transition={{ duration: 0.55 }}
-            viewport={{ once: true }}
-          >
-            See SkillSwap in Action
-          </motion.h2>
-
-          <div className="cosmic-card-grid">
-            {previewSkills.map((skill, index) => {
-              const Icon = skill.icon;
-              return (
-                <motion.article
-                  key={skill.name}
-                  className="cosmic-skill-card cosmic-glass"
-                  variants={fadeUp}
-                  initial="hidden"
-                  whileInView="visible"
-                  transition={{ duration: 0.55, delay: index * 0.08 }}
-                  viewport={{ once: true }}
-                >
-                  <div className="skill-title">
-                    <Icon size={24} />
-                    <div>
-                      <h3>{skill.name}</h3>
-                      <p>Credits: {skill.credits}</p>
-                    </div>
-                  </div>
-                  <button>Request Skill</button>
-                </motion.article>
-              );
-            })}
+            <motion.div
+              className="edu-figure-img edu-figure-right"
+              initial={{ opacity: 0, y: 18, x: 20 }}
+              animate={{ opacity: 1, y: 0, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              aria-hidden="true"
+            >
+              <ReadingDoodle ink="#1f1f39" accent="#f59d2a" />
+            </motion.div>
           </div>
         </section>
 
-        <section className="cosmic-section" id="features">
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            transition={{ duration: 0.55 }}
-            viewport={{ once: true }}
-          >
-            How SkillSwap Works
-          </motion.h2>
-
-          <div className="cosmic-feature-grid">
+        <section className="edu-features" id="features">
+          <div className="edu-feature-grid">
             {featureCards.map((feature, index) => {
               const Icon = feature.icon;
               return (
                 <motion.article
                   key={feature.title}
-                  className="cosmic-feature-card cosmic-glass"
-                  variants={fadeUp}
+                  className="edu-feature-card"
+                  variants={reveal}
                   initial="hidden"
-                  whileInView="visible"
-                  transition={{ duration: 0.55, delay: index * 0.08 }}
+                  whileInView="show"
+                  transition={{ duration: 0.45, delay: index * 0.06 }}
                   viewport={{ once: true }}
                 >
-                  <div className="feature-icon-wrap">
-                    <Icon size={24} />
-                  </div>
-                  <div>
-                    <h3>{feature.title}</h3>
-                    <p>{feature.description}</p>
-                  </div>
+                  <span className="edu-feature-icon">
+                    <Icon size={27} />
+                  </span>
+                  <h2>{feature.title}</h2>
+                  <p>{feature.description}</p>
                 </motion.article>
               );
             })}
           </div>
         </section>
 
-        <section className="cosmic-section cosmic-showcase">
+        <section className="edu-dashboard-section" id="dashboard">
           <motion.div
-            className="cosmic-showcase-panel cosmic-glass"
-            initial={{ opacity: 0, x: -28 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.65 }}
+            className="edu-dashboard"
+            variants={reveal}
+            initial="hidden"
+            whileInView="show"
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <div className="showcase-ring" aria-hidden="true" />
-            <div className="dashboard-head">
-              <span>SkillSwap</span>
-              <span>Dashboard</span>
-            </div>
-            <div className="dashboard-balance cosmic-glass-soft">
-              <p>Credits Balance</p>
-              <h3>
-                120 <span>Credits</span>
-              </h3>
-            </div>
-            <div className="dashboard-list">
-              {dashboardRows.map((row) => (
-                <div className="dashboard-row cosmic-glass-soft" key={`show-${row.name}`}>
-                  <div>
-                    <h4>{row.name}</h4>
-                    <p>{row.details}</p>
-                  </div>
-                  <button>Request Skill</button>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+            <aside className="edu-sidebar">
+              <div className="edu-profile-dot">P</div>
+              <nav>
+                {sideMenu.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button key={item.label} type="button" className="edu-side-item">
+                      <Icon size={16} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+              <button type="button" className="edu-side-search" aria-label="Search dashboard">
+                <Search size={16} />
+              </button>
+            </aside>
 
-          <motion.div
-            className="cosmic-showcase-copy"
-            initial={{ opacity: 0, x: 28 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.65 }}
-            viewport={{ once: true }}
-          >
-            <h2>Manage your skills effortlessly</h2>
-            <p>Join the future of skill exchange and keep learning momentum every week.</p>
-            <ul>
-              {benefits.map((item) => (
-                <li key={item}>
-                  <Check size={16} />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+            <div className="edu-dash-main">
+              <div className="edu-dash-head">
+                <h3>Dashboard</h3>
+                <div className="edu-dash-filters">
+                  <button type="button">Details</button>
+                  <button type="button">Courses</button>
+                </div>
+              </div>
+
+              <div className="edu-dash-summary">
+                <div>
+                  <p>Weekly Progress</p>
+                  <div className="edu-progress-row">
+                    <span>Design</span>
+                    <div>
+                      <i style={{ width: '72%' }} />
+                    </div>
+                  </div>
+                  <div className="edu-progress-row">
+                    <span>Code</span>
+                    <div>
+                      <i style={{ width: '84%' }} />
+                    </div>
+                  </div>
+                  <div className="edu-progress-row">
+                    <span>Practice</span>
+                    <div>
+                      <i style={{ width: '66%' }} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="edu-credit-stack">
+                  <div>
+                    <strong>320</strong>
+                    <span>Earned</span>
+                  </div>
+                  <div>
+                    <strong>124</strong>
+                    <span>Spent</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="edu-course-grid">
+                {dashboardCourses.map((course) => (
+                  <article key={course.title} className={`edu-course-card tone-${course.tone}`}>
+                    <header>
+                      <h4>{course.title}</h4>
+                      <button type="button">Join</button>
+                    </header>
+                    <p>{course.teacher}</p>
+                    <footer>
+                      <span>
+                        <Star size={13} /> {course.rating}
+                      </span>
+                      <span>{course.students} students</span>
+                    </footer>
+                  </article>
+                ))}
+              </div>
+
+              <div className="edu-dash-tabs">
+                <button type="button">Overview</button>
+                <button type="button">Skill Plan</button>
+                <button type="button">Courses</button>
+              </div>
+            </div>
           </motion.div>
         </section>
 
-        <footer className="cosmic-footer">
-          <p>SkillSwap • Learn and teach skills without money</p>
-          <div className="cosmic-footer-links">
-            <button onClick={() => navigate('/login')}>Login</button>
-            <button onClick={() => navigate('/signup')}>Signup</button>
-            <a href="mailto:contact@skillswap.com">Contact</a>
+        <section className="edu-teachers">
+          <div className="edu-mini-figure edu-mini-left" aria-hidden="true">
+            <SittingReadingDoodle ink="#202043" accent="#f3b930" />
+          </div>
+
+          <div className="edu-teachers-panel">
+            <header>
+              <h3>Teachers</h3>
+              <button type="button" onClick={() => navigate('/signup')}>
+                Browse
+              </button>
+            </header>
+
+            <div className="edu-teacher-grid">
+              {tutorCards.map((teacher) => (
+                <article key={teacher.name} className="edu-teacher-card">
+                  <div className="edu-avatar">{teacher.name[0]}</div>
+                  <h4>{teacher.name}</h4>
+                  <p>{teacher.course}</p>
+                  <span>
+                    <Star size={12} /> {teacher.rating}
+                  </span>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="edu-mini-figure edu-mini-right" aria-hidden="true">
+            <StrollingDoodle ink="#202043" accent="#2fa9e8" />
+          </div>
+        </section>
+
+        <footer className="edu-footer" id="footer">
+          <div className="edu-footer-grid">
+            <div>
+              <h4>SkillSwap</h4>
+              <p>Learn and teach smarter.</p>
+              <div className="edu-socials">
+                <a href="https://facebook.com" target="_blank" rel="noreferrer">
+                  Fb
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noreferrer">
+                  Tw
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noreferrer">
+                  Ig
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <h4>Links</h4>
+              <a href="#top">Home</a>
+              <a href="#dashboard">Courses</a>
+              <a href="#features">About</a>
+              <a href="mailto:contact@skillswap.com">Contact</a>
+            </div>
+
+            <div>
+              <h4>Newsletter</h4>
+              <p>Get weekly updates about new sessions and course recommendations.</p>
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                }}
+              >
+                <input type="email" placeholder="Enter your email" aria-label="Email" />
+                <button type="button" onClick={() => navigate('/signup')}>
+                  Sign Up
+                </button>
+              </form>
+            </div>
           </div>
         </footer>
       </div>
