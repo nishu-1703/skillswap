@@ -46,14 +46,78 @@ const featurePillars = [
 ]
 
 const fallbackCourseCards = [
-  { title: 'Web Development', mentor: 'Priya Sharma', pace: 'Beginner', tone: 'tone-cyan' },
-  { title: 'UI/UX Design', mentor: 'Aditi Joshi', pace: 'Intermediate', tone: 'tone-sunset' },
-  { title: 'Marketing', mentor: 'Noah Patel', pace: 'Beginner', tone: 'tone-violet' },
-  { title: 'Python', mentor: 'Rahul Verma', pace: 'Advanced', tone: 'tone-ocean' },
-  { title: 'JavaScript', mentor: 'Emma Wilson', pace: 'Intermediate', tone: 'tone-amber' },
-  { title: 'Data Science', mentor: 'Karan Mehta', pace: 'Advanced', tone: 'tone-teal' },
-  { title: 'Graphic Design', mentor: 'Mia Thomas', pace: 'Beginner', tone: 'tone-pink' },
-  { title: 'Digital Marketing', mentor: 'Liam Scott', pace: 'Intermediate', tone: 'tone-indigo' },
+  {
+    id: 'fallback-web-development',
+    skillId: null,
+    teacherId: null,
+    title: 'Web Development',
+    mentor: 'Priya Sharma',
+    pace: 'Beginner',
+    tone: 'tone-cyan',
+  },
+  {
+    id: 'fallback-ui-ux-design',
+    skillId: null,
+    teacherId: null,
+    title: 'UI/UX Design',
+    mentor: 'Aditi Joshi',
+    pace: 'Intermediate',
+    tone: 'tone-sunset',
+  },
+  {
+    id: 'fallback-marketing',
+    skillId: null,
+    teacherId: null,
+    title: 'Marketing',
+    mentor: 'Noah Patel',
+    pace: 'Beginner',
+    tone: 'tone-violet',
+  },
+  {
+    id: 'fallback-python',
+    skillId: null,
+    teacherId: null,
+    title: 'Python',
+    mentor: 'Rahul Verma',
+    pace: 'Advanced',
+    tone: 'tone-ocean',
+  },
+  {
+    id: 'fallback-javascript',
+    skillId: null,
+    teacherId: null,
+    title: 'JavaScript',
+    mentor: 'Emma Wilson',
+    pace: 'Intermediate',
+    tone: 'tone-amber',
+  },
+  {
+    id: 'fallback-data-science',
+    skillId: null,
+    teacherId: null,
+    title: 'Data Science',
+    mentor: 'Karan Mehta',
+    pace: 'Advanced',
+    tone: 'tone-teal',
+  },
+  {
+    id: 'fallback-graphic-design',
+    skillId: null,
+    teacherId: null,
+    title: 'Graphic Design',
+    mentor: 'Mia Thomas',
+    pace: 'Beginner',
+    tone: 'tone-pink',
+  },
+  {
+    id: 'fallback-digital-marketing',
+    skillId: null,
+    teacherId: null,
+    title: 'Digital Marketing',
+    mentor: 'Liam Scott',
+    pace: 'Intermediate',
+    tone: 'tone-indigo',
+  },
 ]
 
 const toneCycle = [
@@ -106,6 +170,8 @@ export default function DashboardNew() {
   const [creditBalance, setCreditBalance] = useState(0)
   const [loading, setLoading] = useState(true)
   const [activePanel, setActivePanel] = useState('overview')
+  const [enrollingSkillId, setEnrollingSkillId] = useState(null)
+  const [enrollFeedback, setEnrollFeedback] = useState(null)
 
   useEffect(() => {
     if (!user) {
@@ -169,6 +235,30 @@ export default function DashboardNew() {
     return () => controller.abort()
   }, [user])
 
+  useEffect(() => {
+    if (!enrollFeedback) {
+      return
+    }
+
+    const timeoutId = setTimeout(() => setEnrollFeedback(null), 3200)
+    return () => clearTimeout(timeoutId)
+  }, [enrollFeedback])
+
+  useEffect(() => {
+    if (activePanel !== 'courses') {
+      return
+    }
+
+    const workspace = document.getElementById('dashboard-workspace')
+    if (!workspace) {
+      return
+    }
+
+    requestAnimationFrame(() => {
+      workspace.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [activePanel])
+
   if (!user) {
     return (
       <main className="alt-dashboard-empty">
@@ -212,6 +302,8 @@ export default function DashboardNew() {
 
     return allSkills.slice(0, 8).map((skill, index) => ({
       id: skill.id || `${normalizeSkillTitle(skill, index)}-${index}`,
+      skillId: skill.id ?? null,
+      teacherId: skill.teacherId ?? null,
       title: normalizeSkillTitle(skill, index),
       mentor: skill.teacherName || skill.user?.name || 'SkillSwap Mentor',
       pace: skill.level || ['Beginner', 'Intermediate', 'Advanced'][index % 3],
@@ -288,6 +380,56 @@ export default function DashboardNew() {
     setActivePanel(target)
   }
 
+  const handleEnrollClick = async (course) => {
+    if (!course.skillId || !course.teacherId) {
+      setActivePanel('courses')
+      return
+    }
+
+    const token = localStorage.getItem('token')
+    if (!token) {
+      navigate('/login')
+      return
+    }
+
+    const currentSkillId = String(course.skillId)
+    setEnrollingSkillId(currentSkillId)
+    setEnrollFeedback(null)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/sessions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          skillId: course.skillId,
+          teacherId: course.teacherId,
+        }),
+      })
+
+      const payload = await response.json()
+      if (!response.ok) {
+        throw new Error(payload.error || 'Unable to create enrollment right now.')
+      }
+
+      setSessions((prevSessions) => [payload, ...prevSessions])
+      setEnrollFeedback({
+        type: 'success',
+        text: `Enrollment requested for ${course.title}.`,
+      })
+    } catch (error) {
+      setEnrollFeedback({
+        type: 'error',
+        text: error.message || 'Enrollment failed. Opening the course browser instead.',
+      })
+      setActivePanel('courses')
+    } finally {
+      setEnrollingSkillId(null)
+    }
+  }
+
   return (
     <div className="alt-dashboard-page">
       <div className="alt-dashboard-shell" id="dashboard-top">
@@ -355,6 +497,9 @@ export default function DashboardNew() {
           </header>
 
           {loading ? <p className="alt-loading-note">Syncing your latest dashboard data...</p> : null}
+          {enrollFeedback ? (
+            <p className={`alt-enroll-feedback ${enrollFeedback.type}`}>{enrollFeedback.text}</p>
+          ) : null}
 
           <div className="alt-board-grid">
             <aside className="alt-side-stack">
@@ -419,24 +564,33 @@ export default function DashboardNew() {
             </aside>
 
             <div className="alt-course-grid" id="dashboard-courses">
-              {courseCards.map((course, index) => (
-                <article key={course.id || `${course.title}-${index}`} className={`alt-course-card ${course.tone}`}>
-                  <header>
-                    <div className="alt-course-avatar">{getNameInitial(course.mentor)}</div>
-                    <button type="button" aria-label={`Save ${course.title}`}>
-                      <Star size={13} />
-                    </button>
-                  </header>
-                  <h4>{course.title}</h4>
-                  <p>{course.mentor}</p>
-                  <footer>
-                    <span>{course.pace}</span>
-                    <button type="button" onClick={() => setActivePanel('courses')}>
-                      Enroll
-                    </button>
-                  </footer>
-                </article>
-              ))}
+              {courseCards.map((course, index) => {
+                const isEnrolling =
+                  course.skillId !== null && enrollingSkillId === String(course.skillId)
+
+                return (
+                  <article key={course.id || `${course.title}-${index}`} className={`alt-course-card ${course.tone}`}>
+                    <header>
+                      <div className="alt-course-avatar">{getNameInitial(course.mentor)}</div>
+                      <button type="button" aria-label={`Save ${course.title}`}>
+                        <Star size={13} />
+                      </button>
+                    </header>
+                    <h4>{course.title}</h4>
+                    <p>{course.mentor}</p>
+                    <footer>
+                      <span>{course.pace}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleEnrollClick(course)}
+                        disabled={isEnrolling}
+                      >
+                        {isEnrolling ? 'Enrolling...' : 'Enroll'}
+                      </button>
+                    </footer>
+                  </article>
+                )
+              })}
             </div>
           </div>
         </section>

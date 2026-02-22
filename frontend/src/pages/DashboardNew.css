@@ -298,6 +298,20 @@
   font-size: 0.8rem;
 }
 
+.alt-enroll-feedback {
+  margin: 0.42rem 0 0;
+  font-size: 0.79rem;
+  font-weight: 600;
+}
+
+.alt-enroll-feedback.success {
+  color: #1f8755;
+}
+
+.alt-enroll-feedback.error {
+  color: #c54343;
+}
+
 .alt-board-grid {
   margin-top: 0.8rem;
   display: grid;
@@ -537,6 +551,11 @@
   font-size: 0.67rem;
   font-weight: 700;
   padding: 0.2rem 0.6rem;
+}
+
+.alt-course-card footer button:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
 }
 
 .tone-cyan {
