@@ -29,20 +29,17 @@ const featureCards = [
   {
     icon: GraduationCap,
     title: 'Learning',
-    description:
-      'Learn practical skills through guided peer sessions, weekly projects, and structured progress tracking.',
+   
   },
   {
     icon: Cog,
     title: 'Skills',
-    description:
-      'Build and share your expertise, collect credits, and unlock advanced classes from trusted mentors.',
+    
   },
   {
     icon: MessageCircle,
     title: 'Community',
-    description:
-      'Collaborate in a friendly community where learners and teachers help each other grow every day.',
+    
   },
 ];
 
@@ -129,9 +126,7 @@ export default function Landing() {
               transition={{ duration: 0.55 }}
             >
               <h1>Landing Page for Skill Growth</h1>
-              <p>
-                Learn, teach, and exchange knowledge with a credit-based system designed for students and mentors.
-              </p>
+              <p />
               <button type="button" className="edu-hero-cta" onClick={() => navigate('/signup')}>
                 Get Started
               </button>

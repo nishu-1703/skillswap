@@ -27,23 +27,8 @@ import ReadingDoodle from '../components/doodles/ReadingDoodle.tsx'
 import SittingReadingDoodle from '../components/doodles/SittingReadingDoodle.tsx'
 import './DashboardNew.css'
 
-const featurePillars = [
-  {
-    title: 'Learning',
-    description: 'Track active courses, complete sessions, and grow your daily learning streak.',
-    icon: GraduationCap,
-  },
-  {
-    title: 'Skills',
-    description: 'Teach what you know, learn from peers, and grow your credit balance faster.',
-    icon: Wrench,
-  },
-  {
-    title: 'Community',
-    description: 'Connect with learners, exchange feedback, and collaborate on projects.',
-    icon: MessageCircle,
-  },
-]
+// feature pillars removed per requirements
+const featurePillars = []
 
 const fallbackCourseCards = [
   {
@@ -134,7 +119,7 @@ const toneCycle = [
 const quickActions = [
   { key: 'courses', label: 'My Courses', icon: BookOpen },
   { key: 'messages', label: 'Messages', icon: MessageCircle },
-  { key: 'sessions', label: 'Calendar', icon: CalendarDays },
+  { key: 'sessions', label: 'Activity', icon: CalendarDays },
   { key: 'skills', label: 'Add Skill', icon: Settings },
 ]
 
@@ -148,7 +133,7 @@ const dockItems = [
 
 const panelTitles = {
   courses: 'Explore Courses',
-  sessions: 'Session Calendar',
+  sessions: 'Session Activity',
   skills: 'Skill Workspace',
   profile: 'Profile Snapshot',
 }
