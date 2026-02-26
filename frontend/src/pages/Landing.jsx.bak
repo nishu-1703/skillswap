@@ -1,0 +1,106 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+
+export default function Landing() {
+  const navigate = useNavigate();
+
+  return (
+    <>
+      <Navbar />
+
+      <main className="landing-main">
+        {/* Section 1: Hero (Full screen) */}
+        <section className="hero-full" role="region" aria-label="Hero">
+          <div className="hero-inner">
+            <h1 className="hero-title">SkillSwap</h1>
+            <p className="hero-sub">Learn & Teach Skills Without Money</p>
+            <p className="hero-lead">Exchange knowledge. Earn credits. Grow together.</p>
+
+            <div className="hero-ctas">
+              <button onClick={() => navigate('/signup')} className="btn-cta btn-cta-primary">Get Started</button>
+              <button onClick={() => navigate('/browse')} className="btn-cta btn-cta-ghost">Browse Skills</button>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 2: Problem → Solution */}
+        <section className="section simple" aria-labelledby="why-heading">
+          <div className="container">
+            <h2 id="why-heading">Why SkillSwap?</h2>
+            <p className="muted">Learning shouldn’t be limited by money. SkillSwap lets students exchange skills freely using a credit system.</p>
+            <div className="mini-list">
+              <div>Teach what you know.</div>
+              <div>Learn what you need.</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 3: Features (4 cards) */}
+        <section className="section features" aria-labelledby="features-heading">
+          <div className="container">
+            <h2 id="features-heading">Features</h2>
+            <div className="features-grid">
+              <div className="feature-card">
+                <h3>Skill Exchange</h3>
+                <p>Exchange skills directly</p>
+              </div>
+              <div className="feature-card">
+                <h3>Credit System</h3>
+                <p>Earn and spend credits</p>
+              </div>
+              <div className="feature-card">
+                <h3>User Profiles</h3>
+                <p>Show your expertise</p>
+              </div>
+              <div className="feature-card">
+                <h3>Secure Platform</h3>
+                <p>Safe and reliable system</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 4: Skills Preview */}
+        <section className="section skills-preview" aria-labelledby="skills-heading">
+          <div className="container">
+            <h2 id="skills-heading">Available Skills</h2>
+            <ul className="skills-list-preview">
+              <li>Web Development</li>
+              <li>Graphic Design</li>
+              <li>Python Programming</li>
+            </ul>
+            <div className="centered">
+              <button onClick={() => navigate('/browse')} className="btn-cta btn-cta-primary">Browse All Skills</button>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 5: Final CTA */}
+        <section className="section final-cta">
+          <div className="container centered">
+            <h2 className="final-heading">Start Your SkillSwap Journey Today</h2>
+            <button onClick={() => navigate('/signup')} className="btn-cta btn-cta-giant">Create Free Account</button>
+          </div>
+        </section>
+
+        {/* Section 6: Minimal Footer */}
+        <footer className="footer-minimal">
+          <div className="container footer-inner">
+            <div>
+              <div className="footer-brand">SkillSwap</div>
+              <div className="footer-tag">Learn & Teach Skills Without Money</div>
+            </div>
+
+            <nav className="footer-nav">
+              <a href="/login">Login</a>
+              <a href="/signup">Signup</a>
+              <a href="/contact">Contact</a>
+            </nav>
+          </div>
+        </footer>
+      </main>
+    </>
+  );
+}
+
